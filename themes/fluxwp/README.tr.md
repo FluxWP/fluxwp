@@ -23,7 +23,7 @@
 
 [FluxWP Panel](../../plugins/flx-setup/README.tr.md) etkinken **Görünüm › Tema Ayarları › Ön ayarlar** bir ön ayar (`flx-preset/1`) uygular: kurum profili, ayarlar, şablonlar, header, footer, desenler, sayfalar, ürünler ve menüler. Ön ayar tüm siteyi yeniden kurabilir; örneğin [FluxWP Extras](https://github.com/FluxWP/wp-extras) ön ayarları bu temayı dernek sitesine çevirir. Ön ayar güncellemeleri elle yaptığınız değişikliklerin üzerine yazmaz.
 
-Ön ayar eklentileri için filtreler: `flx_presets`, `flx_img_dirs`, `flx_i18n_domains`, `flx_logo_files`, `flx_search_placeholder`, `flx_search_chips`, `flx_account_cta`, `flx_tasi_sources`.
+Ön ayar eklentileri için filtreler: `flx_presets`, `flx_img_dirs`, `flx_i18n_domains`, `flx_logo_files`, `flx_search_placeholder`, `flx_search_chips`, `flx_account_cta`, `flx_wc_endpoint_meta`, `flx_phone_nudge_text`, `flx_phone_hint_text`, `flx_tasi_sources`.
 
 ## Başka bir FluxWP temasından geçiş
 

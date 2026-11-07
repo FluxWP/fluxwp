@@ -189,7 +189,7 @@ function flx_telefon_alani( $id, $value ) {
 	<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide flx-tel-row">
 		<label for="<?php echo esc_attr( $id ); ?>"><?php esc_html_e( 'Telefon', 'fluxwp' ); ?> <span class="optional"><?php esc_html_e( '(isteğe bağlı)', 'fluxwp' ); ?></span></label>
 		<input type="tel" class="woocommerce-Input woocommerce-Input--text input-text" name="flx_phone" id="<?php echo esc_attr( $id ); ?>" autocomplete="tel" inputmode="tel" placeholder="05XX XXX XX XX" value="<?php echo esc_attr( $value ); ?>">
-		<span class="flx-tel-hint"><?php esc_html_e( 'Fidan sertifikanı WhatsApp’tan da gönderebilmemiz için.', 'fluxwp' ); ?></span>
+		<span class="flx-tel-hint"><?php echo esc_html( apply_filters( 'flx_phone_hint_text', __( 'Bağış ve sipariş bildirimlerini WhatsApp’tan da gönderebilmemiz için.', 'fluxwp' ) ) ); ?></span>
 	</p>
 	<?php
 }
@@ -261,7 +261,7 @@ add_action(
 			return;
 		}
 		echo '<div class="flx-tel-nudge"><span class="flx-tel-nudge__ic">' . ( function_exists( 'flx_wc_icon' ) ? flx_wc_icon( 'account' ) : '' ) . '</span><p>'
-			. esc_html__( 'Telefon numaranı ekle, fidan sertifikanı WhatsApp’tan da alabilirsin.', 'fluxwp' )
+			. esc_html( apply_filters( 'flx_phone_nudge_text', __( 'Telefon numaranı ekle, bildirimleri WhatsApp’tan da alabilirsin.', 'fluxwp' ) ) )
 			. '</p><a class="flx-hesap-satiri__btn" href="' . esc_url( wc_get_account_endpoint_url( 'edit-account' ) ) . '#account_flx_phone">'
 			. esc_html__( 'Telefon ekle', 'fluxwp' ) . '</a></div>';
 	},

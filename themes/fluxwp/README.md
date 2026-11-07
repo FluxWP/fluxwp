@@ -23,7 +23,7 @@
 
 With [FluxWP Panel](../../plugins/flx-setup) active, **Appearance › Theme Settings › Presets** applies a preset (`flx-preset/1`): profile, settings, templates, header, footer, patterns, pages, products and menus. A preset can rebuild the whole site, for example a preset from [FluxWP Extras](https://github.com/FluxWP/wp-extras) turns this theme into an association site. Your own edits are never overwritten by preset updates.
 
-Filters for preset plugins: `flx_presets`, `flx_img_dirs`, `flx_i18n_domains`, `flx_logo_files`, `flx_search_placeholder`, `flx_search_chips`, `flx_account_cta`, `flx_tasi_sources`.
+Filters for preset plugins: `flx_presets`, `flx_img_dirs`, `flx_i18n_domains`, `flx_logo_files`, `flx_search_placeholder`, `flx_search_chips`, `flx_account_cta`, `flx_wc_endpoint_meta`, `flx_phone_nudge_text`, `flx_phone_hint_text`, `flx_tasi_sources`.
 
 ## Moving from another FluxWP theme
 

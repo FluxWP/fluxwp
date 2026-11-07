@@ -24,6 +24,7 @@ function flx_wc_icon( $name ) {
 		'account'  => '<rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17c.6-1.8 1.9-2.8 3.5-2.8s2.9 1 3.5 2.8M15 9.5h3.5M15 13h3.5"/>',
 		'heart'    => '<path d="M12 20.5s-8-4.7-8-10.6A4.4 4.4 0 0 1 12 7.3a4.4 4.4 0 0 1 8 2.6c0 5.9-8 10.6-8 10.6z"/>',
 		'sprout'   => '<path d="M12 21v-9"/><path d="M12 12c0-4-3-7-8-7 0 4.5 3 7 8 7zM12 10c0-3.5 2.6-6 7-6 0 4-2.6 6-7 6z"/>',
+		'item'     => '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 12h8M8 15h5"/>',
 		'arrow'    => '<path d="M5 12h14m-5-5 5 5-5 5"/>',
 		'check'    => '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
 	);
@@ -280,7 +281,9 @@ function flx_wc_account_side_close() {
 add_action( 'woocommerce_after_account_navigation', 'flx_wc_account_side_close', 99 );
 
 /**
- * Pano kartları için simge ve açıklama.
+ * Pano kartları için simge ve açıklama: array( simge adı (flx_wc_icon), açıklama ).
+ * Bilinmeyen uç noktalar (eklentilerin eklediği sekmeler) nötr 'item' simgesi alır.
+ * Ön ayarlar `flx_wc_endpoint_meta` filtresiyle değiştirir.
  */
 function flx_wc_endpoint_meta( $endpoint ) {
 	$m = array(
@@ -290,7 +293,9 @@ function flx_wc_endpoint_meta( $endpoint ) {
 		'payment-methods' => array( 'card', __( 'Kayıtlı ödeme yöntemlerinizi yönetin.', 'fluxwp' ) ),
 		'edit-account'    => array( 'account', __( 'Ad, e-posta ve şifrenizi güncelleyin.', 'fluxwp' ) ),
 	);
-	return $m[ $endpoint ] ?? array( 'sprout', '' );
+	$meta = $m[ $endpoint ] ?? array( 'item', '' );
+	$meta = apply_filters( 'flx_wc_endpoint_meta', $meta, $endpoint );
+	return is_array( $meta ) && 2 === count( $meta ) ? array_values( $meta ) : array( 'item', '' );
 }
 
 /**

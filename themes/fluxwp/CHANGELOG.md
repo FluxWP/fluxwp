@@ -1,5 +1,9 @@
 # Değişiklikler
 
+## 0.7.11
+- Hesabım: içerik bağlantı rengi artık düğmelere (`*btn*` sınıflı bağlantılar, ör. Flux Donate "Bağış yap") geçmiyor; boş "Bekleyen bağışlar" ekranındaki düğme yazısı zeminle aynı renk olup görünmez oluyordu.
+- Hesabım genel temada nötr: telefon hatırlatması ve telefon alanı ipucu "fidan sertifikası" yerine genel bildirim metni; eklentilerin eklediği sekmelerin simgesi (menü ve pano kartı) fidan yerine nötr liste simgesi. Derneğe özel metin/simge ön ayardan: yeni filtreler `flx_phone_nudge_text`, `flx_phone_hint_text`, `flx_wc_endpoint_meta`; menü simgesi CSS değişkeni `--flx-wc-i-default`.
+
 ## 0.7.10
 - Güvenlik (CodeQL): YouTube kimliği adrese `encodeURIComponent` ile girer.
 

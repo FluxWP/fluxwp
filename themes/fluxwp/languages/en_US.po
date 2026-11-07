@@ -1211,17 +1211,16 @@ msgid "(isteğe bağlı)"
 msgstr "(optional)"
 
 #: inc/hesap.php
-msgid "Fidan sertifikanı WhatsApp’tan da gönderebilmemiz için."
-msgstr "So we can also send your sapling certificate via WhatsApp."
+msgid "Bağış ve sipariş bildirimlerini WhatsApp’tan da gönderebilmemiz için."
+msgstr "So we can also send your donation and order updates via WhatsApp."
 
 #: inc/hesap.php
 msgid "Telefon numarası geçersiz görünüyor. Örnek: 0532 123 45 67"
 msgstr "The phone number looks invalid. Example: +90 532 123 45 67"
 
 #: inc/hesap.php
-msgid "Telefon numaranı ekle, fidan sertifikanı WhatsApp’tan da alabilirsin."
-msgstr ""
-"Add your phone number to also receive your sapling certificate via WhatsApp."
+msgid "Telefon numaranı ekle, bildirimleri WhatsApp’tan da alabilirsin."
+msgstr "Add your phone number to also receive updates via WhatsApp."
 
 #: inc/hesap.php
 msgid "Telefon ekle"
