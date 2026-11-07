@@ -8,6 +8,7 @@ import {
   StatusPill, TagChips, useYtg, type Ctx, type MenuItem,
 } from './ui';
 import { DndArea, useDragItem, useDropZone, type DropInfo } from './dnd';
+import { Select } from '@fluxwp/ui';
 
 type Col = { key: string; name: string; w: string; field?: { key: string; id: number; ids: number[]; name: string; type: string; options: Record<string, unknown> } };
 type T = FlxgTask & { _ctx?: boolean; _outside?: boolean };
@@ -939,13 +940,13 @@ function InlineAdd({ g, autoOpen }: { g: Group; autoOpen?: boolean }) {
           onBlur={(ev) => setTimeout(() => !v.trim() && !(ev.relatedTarget as HTMLElement | null)?.closest('.flxg-inline-form') && setOpen(false), 150)}
         />
         {S.scope?.type !== 'list' && !g.list && lists.length > 1 && (
-          <select className="flxg-input is-sm" value={list} onChange={(ev) => setList(+ev.target.value)}>
+          <Select className="flxg-input is-sm" value={list} onChange={(ev) => setList(+ev.target.value)}>
             {lists.map((l) => (
               <option key={l.id} value={l.id}>
                 {l.name}
               </option>
             ))}
-          </select>
+          </Select>
         )}
         <button type="button" className="flxg-btn is-primary is-sm" onMouseDown={(ev) => (ev.preventDefault(), save())}>
           {tt('Ekle')}

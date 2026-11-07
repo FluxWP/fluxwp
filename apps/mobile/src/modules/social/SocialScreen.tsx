@@ -1,113 +1,82 @@
-// Flux Social media composer: text, accounts, an image, publish or schedule.
-import { useState } from 'react';
-import { Pressable, ScrollView, TextInput, View } from 'react-native';
-import { Image } from 'expo-image';
+// Same account-scoped composer engine as desktop; all controls below are native React Native views.
+import {useEffect,useState} from 'react';
+import {FlatList,Modal,Platform,Pressable,ScrollView,Switch,View,useWindowDimensions} from 'react-native';
+import {Image} from 'expo-image';
+import {useVideoPlayer,VideoView} from 'expo-video';
 import * as ImagePicker from 'expo-image-picker';
-import { useQuery } from '@tanstack/react-query';
-import { useTranslation } from 'react-i18next';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { socialPostBody, uploadPickedMedia, useAccount, useApi, useRenderer, type SocialAccount } from '@fluxwp/runtime';
-import { Button, Text } from '@/ui/primitives';
-import { Chip, Chips, useScreenTitle } from '../kit';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useQuery} from '@tanstack/react-query';
+import {StyleSheet,useUnistyles} from 'react-native-unistyles';
+import {useSocialComposer} from '@fluxwp/runtime/src/modules/use-social-composer';
+import {socialInputTime,socialLength,socialLocalInput,socialMediaFor,socialOverride,socialQuickTime,socialTextFor,socialVisibleOptions,type ComposerAccount,type SocialMedia,type SocialOptions} from '@fluxwp/runtime/src/modules/social-composer';
+import {Button,Card,Field,IconButton,Text} from '@/ui/primitives';
+import {Select} from '@/ui/Select';
+import {Chip,Chips,useScreenTitle} from '../kit';
+import {ScheduleField} from './ScheduleField';
 
-interface Boot {
-  accounts: SocialAccount[];
-  user: { publish: boolean };
+type Controller=ReturnType<typeof useSocialComposer>;
+export default function SocialScreen({params}:{params:Record<string,string>}) {
+ const c=useSocialComposer(params);const {state:s,session,t,renderer}=c;const d=s.document;const boot=s.boot;
+ const [picker,setPicker]=useState(false);const [preview,setPreview]=useState(false);const [whenDraft,setWhenDraft]=useState<{time:number;value:string}|null>(null);const [tagDraft,setTagDraft]=useState<{canonical:string;value:string}|null>(null);const [extras,setExtras]=useState(false);
+ useScreenTitle(t(d.id?'socialComposer.editTitle':'socialComposer.title'));
+ const when=whenDraft&&Object.is(whenDraft.time,d.scheduled_at)?whenDraft.value:boot?socialLocalInput(d.scheduled_at,boot).replace('T',' '):'';
+ const canonicalTags=d.tags.join(', ');const tags=tagDraft?.canonical===canonicalTags?tagDraft.value:canonicalTags;
+ if(c.invalidId)return <Text tone="danger">{t('socialComposer.errors.accountMissing')}</Text>;
+ if(!s.ready||!boot)return <View style={styles.wrap}><Text>{s.error||t('socialComposer.loading')}</Text>{!!s.error&&<Button label={t('common.retry')} onPress={()=>void c.refresh()}/>}</View>;
+ const accounts=boot.accounts.filter(a=>a.status!=='disabled');const selected=accounts.filter(a=>d.selected.includes(a.id));const current=s.tab==='all'?null:accounts.find(a=>a.id===s.tab);const override=current?socialOverride(d,current.id):null;
+ const text=current?socialTextFor(d,current.id):d.content;const media=current?socialMediaFor(d,current.id):d.media;const ownText=!current||override?.content!==null;const ownMedia=!current||override?.media!==null;
+ const ai=async(mode:'write'|'improve'|'shorten'|'hashtags'|'translate'|'adapt')=>{
+  let extra:{brief?:string;to?:string}={};if(mode==='write'||mode==='translate'){const r=await renderer.ui.prompt({title:t(`socialComposer.ai.${mode}`),fields:[{name:'value',type:mode==='write'?'textarea':'text',label:t(mode==='write'?'socialComposer.ai.brief':'socialComposer.ai.language'),required:true,default:mode==='translate'?'English':''}]});if(!r?.value)return;extra=mode==='write'?{brief:String(r.value)}:{to:String(r.value)};}
+  await session.ai(mode,extra);
+ };
+ const changeTime=(value:string)=>{const time=value.trim()?(socialInputTime(value.trim().replace(' ','T'),boot)||NaN):0;setWhenDraft({time,value});session.edit(old=>({...old,scheduled_at:time}));};
+ const quick=(kind:'hour'|'tomorrow'|'weekend')=>{const at=socialQuickTime(kind,boot);setWhenDraft({time:at,value:socialLocalInput(at,boot).replace('T',' ')});session.edit(old=>({...old,scheduled_at:at}));};
+ const action=!boot.user.publish?'submit':when?'schedule':'now';
+ return <><ScrollView testID="screen-social" contentContainerStyle={styles.wrap} keyboardShouldPersistTaps="handled">
+  <View style={styles.row}><Text variant="small" tone="muted" style={styles.fill}>{t('socialComposer.site',{site:c.account.siteName})}{d.id?` · #${d.id}`:''}</Text><IconButton icon="refresh" label={t('socialComposer.reload')} onPress={()=>void c.refresh()}/></View>
+  {!!s.error&&<Text tone="danger" accessibilityRole="alert">{s.error}</Text>}{s.uncertain&&<Text tone="danger">{t('socialComposer.uncertain')}</Text>}{s.changedOnServer&&<Text tone="danger">{t('socialComposer.errors.conflict')}</Text>}
+  {!!d.locked.length&&<Text tone="muted">{t('socialComposer.locked',{count:d.locked.length})} {d.locked.map(x=>x.account).join(', ')}</Text>}{!!d.note&&<Text>{t('socialComposer.note',{note:d.note})}</Text>}
+  <Card style={styles.gap}><Text variant="heading">{t('socialComposer.accounts')}</Text><Text variant="small" tone="muted">{t('socialComposer.accountsHelp')}</Text>
+   <View style={styles.choices}>{accounts.map(a=><Pressable key={a.id} accessibilityRole="checkbox" aria-checked={d.selected.includes(a.id)} accessibilityState={{checked:d.selected.includes(a.id),disabled:!!s.busy||d.locked.some(x=>x.account_id===a.id)}} disabled={!!s.busy||d.locked.some(x=>x.account_id===a.id)} onPress={()=>session.toggleAccount(a.id)} style={[styles.account,d.selected.includes(a.id)&&styles.selected]}><Text style={styles.fill}>{a.name} · {a.network||a.provider}{a.status==='expired'?' · '+t('socialComposer.expired'):''}</Text><Text tone="primary">{d.selected.includes(a.id)?'✓':'○'}</Text></Pressable>)}</View>
+   {!accounts.length&&<Text tone="muted">{t(boot.user.manage?'socialComposer.noAccounts':'socialComposer.askAdmin')}</Text>}{boot.user.manage&&<Button kind="ghost" label={t('socialComposer.manageAccounts')} onPress={()=>renderer.nav.push({kind:'manifest',module:'social',screen:'accounts',params:{}})}/>}
+  </Card>
+  <Chips><Chip label={t('socialComposer.common')} active={s.tab==='all'} onPress={()=>session.setTab('all')}/>{selected.map(a=><Chip key={a.id} label={a.name} active={s.tab===a.id} onPress={()=>session.setTab(a.id)}/>)}</Chips>
+  <Card style={styles.gap}>{current&&<Toggle label={t('socialComposer.ownText')} value={ownText} disabled={!!s.busy} onChange={on=>session.override(current.id,{content:on?text:null})}/>}
+   <Field label={t('socialComposer.content')} testID="social-body" placeholder={t('socialComposer.placeholder')} value={text} onChangeText={value=>session.setText(value)} multiline numberOfLines={6} editable={!s.busy&&ownText} style={styles.editor}/>
+   {(current?[current]:selected).map(a=>a.caps?.max_text?<Text key={a.id} variant="caption" tone={socialLength(socialTextFor(d,a.id),a.provider)>a.caps.max_text?'danger':'muted'}>{a.network||a.provider}: {socialLength(socialTextFor(d,a.id),a.provider)} / {a.caps.max_text}</Text>:null)}
+   {!current&&!!boot.settings.signature&&<Button kind="ghost" disabled={!!s.busy} label={t('socialComposer.signature')} onPress={()=>session.setText(`${text.trimEnd()}${text?'\n\n':''}${boot.settings.signature}`)}/>}
+   {boot.ai&&ownText&&<View style={styles.choices}>{(['write','improve','shorten','hashtags','translate',...(!current&&selected.length>1?['adapt']:[])] as const).map(mode=><Button key={mode} kind="secondary" disabled={!!s.busy} label={t(`socialComposer.ai.${mode}`)} onPress={()=>void ai(mode as Parameters<typeof ai>[0])}/>)}</View>}
+   {current&&<Toggle label={t('socialComposer.ownMedia')} value={ownMedia} disabled={!!s.busy} onChange={on=>session.override(current.id,{media:on?[...media]:null})}/>}
+   <MediaStrip items={media} editable={!s.busy&&ownMedia} c={c} onChange={items=>session.setMedia(items)}/>{ownMedia&&<Button kind="secondary" icon="image" disabled={!!s.busy} label={t('socialComposer.media')} onPress={()=>setPicker(true)}/>}
+   {current&&<ProviderOptions key={current.id} account={current} values={override!.options} c={c}/>}
+  </Card>
+  <Button kind="ghost" label={t('socialComposer.extras')} onPress={()=>setExtras(!extras)}/>{extras&&<Card style={styles.gap}><Field label={t('socialComposer.internalTitle')} value={d.title} maxLength={190} editable={!s.busy} onChangeText={title=>session.edit(old=>({...old,title}))}/><Field label={t('socialComposer.tags')} value={tags} editable={!s.busy} onChangeText={value=>{const tags=value.split(',').map(x=>x.trim()).filter(Boolean);setTagDraft({canonical:tags.join(', '),value});session.edit(old=>({...old,tags}));}}/><Field label={t('socialComposer.repeat')} value={String(d.repeat_days)} keyboardType="number-pad" editable={!s.busy} onChangeText={value=>session.edit(old=>({...old,repeat_days:Number(value)}))}/></Card>}
+  <Card style={styles.gap}><Text variant="heading">{t('socialComposer.scheduleTime')}</Text><Text variant="small" tone="muted">{boot.tz}</Text><ScheduleField label={t('socialComposer.scheduleTime')} help={t('socialComposer.timeHelp')} value={when} fallback={socialLocalInput(socialQuickTime('hour',boot),boot).replace('T',' ')} disabled={!!s.busy} onChange={changeTime}/><View style={styles.choices}>{(['hour','tomorrow','weekend'] as const).map(kind=><Button key={kind} kind="ghost" disabled={!!s.busy} label={t(`socialComposer.quick.${kind}`)} onPress={()=>quick(kind)}/>)}{!!when&&<Button kind="ghost" disabled={!!s.busy} label={t('socialComposer.clearTime')} onPress={()=>changeTime('')}/>}</View></Card>
+  <Button kind="secondary" icon="eye" label={t(preview?'socialComposer.closePreview':'socialComposer.previewToggle')} onPress={()=>setPreview(!preview)}/>{preview&&selected.map(a=><Card key={a.id} style={styles.gap}><Text variant="heading">{a.name} · {a.network||a.provider}</Text><Text>{socialTextFor(d,a.id)}</Text><MediaStrip items={socialMediaFor(d,a.id)} editable={false} c={c} onChange={()=>{}}/>{!!socialOverride(d,a.id).options.first_comment&&<Text variant="small">{String(socialOverride(d,a.id).options.first_comment)}</Text>}<Text variant="caption" tone="muted">{t('socialComposer.previewHelp')}</Text></Card>)}
+  {s.issues.map((issue,i)=><Text key={i} tone="danger" accessibilityRole="alert">{issue.account?`${accounts.find(a=>a.id===issue.account)?.name||issue.account}: `:''}{t(issue.key,issue.vars)}</Text>)}
+  <Button kind="secondary" label={t('socialComposer.actions.draft')} disabled={!!s.busy||s.uncertain} onPress={()=>void c.save('draft')}/>{boot.user.publish&&d.status==='pending'&&<Button kind="secondary" label={t('socialComposer.actions.approve')} disabled={!!s.busy||s.uncertain} onPress={()=>void c.save('approve')}/>}
+  <Button label={t(`socialComposer.actions.${action}`)} disabled={!!s.busy||s.uncertain||!accounts.length} loading={s.busy==='save'} onPress={()=>void c.save(action)} full/>
+ </ScrollView>{picker&&<MediaPicker c={c} close={()=>setPicker(false)}/>}</>;
 }
+function Toggle({label,value,onChange,disabled}:{label:string;value:boolean;onChange:(on:boolean)=>void;disabled?:boolean}){const {theme}=useUnistyles();return <View style={styles.row}><Text variant="small" style={styles.fill}>{label}</Text><Switch accessibilityLabel={label} value={value} onValueChange={onChange} disabled={disabled} trackColor={{true:theme.colors.primary}}/></View>;}
+function VideoPreview({item}:{item:SocialMedia}){const player=useVideoPlayer(item.url);return <VideoView player={player} style={styles.media} nativeControls contentFit="contain" fullscreenOptions={{enable:true}}/>;}
+function MediaStrip({items,editable,c,onChange}:{items:SocialMedia[];editable:boolean;c:Controller;onChange:(items:SocialMedia[])=>void}){return <ScrollView horizontal contentContainerStyle={styles.mediaRow}>{items.map((m,i)=><View key={m.id} style={styles.mediaItem}>{m.kind==='video'?<VideoPreview item={m}/>:<Image source={{uri:m.thumb||m.url}} accessibilityLabel={m.alt||m.name} style={styles.media} contentFit="contain"/>}<Text variant="caption" numberOfLines={1}>{m.name||m.kind}</Text>{editable&&<View style={styles.row}>{i>0&&<IconButton icon="chevron-left" label={c.t('socialComposer.moveLeft')} onPress={()=>{const next=[...items];[next[i-1],next[i]]=[next[i]!,next[i-1]!];onChange(next);}}/>}<IconButton icon="x" label={c.t('socialComposer.removeMedia')} onPress={()=>onChange(items.filter((_m,index)=>i!==index))}/></View>}</View>)}</ScrollView>;}
+function ProviderOptions({account,values,c}:{account:ComposerAccount;values:SocialOptions;c:Controller}){return <View style={styles.gap}><Text variant="heading">{c.t('socialComposer.networkOptions',{network:account.network||account.provider})}</Text>{socialVisibleOptions(account,values,c.t).map(([id,f])=>{const value=values[id]??f.default??f.choices?.[0]?.value??'';const change=(value:SocialOptions[string])=>c.session.setOptions(account.id,{...values,[id]:value});if(f.type==='check')return <Toggle key={id} label={f.label} value={!!value} disabled={!!c.state.busy} onChange={change}/>;if(f.type==='select')return <Select key={id} label={f.label} value={String(value)} options={f.choices||[]} disabled={!!c.state.busy} onChange={change}/>;return <OptionText key={id} label={f.label} value={value} tags={f.type==='tags'} multiline={f.type==='area'} url={f.type==='url'} max={f.max} disabled={!!c.state.busy} onChange={change}/>;})}</View>;}
+function OptionText({label,value,tags,multiline,url,max,disabled,onChange}:{label:string;value:SocialOptions[string];tags:boolean;multiline:boolean;url:boolean;max?:number;disabled:boolean;onChange:(v:SocialOptions[string])=>void}){const normalized=Array.isArray(value)?value.join(', '):String(value);const [draft,setDraft]=useState<{canonical:string;value:string}|null>(null);const shown=tags&&draft?.canonical===normalized?draft.value:normalized;return <Field label={label} value={shown} multiline={multiline} keyboardType={url?'url':'default'} autoCapitalize={url?'none':'sentences'} maxLength={max} editable={!disabled} onChangeText={text=>{const parsed=text.split(',').map(x=>x.trim()).filter(Boolean);setDraft({canonical:parsed.join(', '),value:text});onChange(tags?parsed:text);}}/>;}
 
-export default function SocialScreen(_props: { params: Record<string, string> }) {
-  const { t } = useTranslation();
-  const { theme } = useUnistyles();
-  useScreenTitle(t('mobile.screens.social.title'));
-  const api = useApi();
-  const account = useAccount();
-  const renderer = useRenderer();
-  const boot = useQuery({ queryKey: ['flxsm', account.id, 'boot'], queryFn: () => api<Boot>('flx-social/v1/boot') });
-  const [content, setContent] = useState('');
-  const [picked, setPicked] = useState<number[]>([]);
-  const [mediaId, setMediaId] = useState<number | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
-  const accounts = boot.data?.accounts ?? [];
-
-  const toggle = (id: number) => setPicked((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
-
-  const attach = async () => {
-    const r = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.85 });
-    if (r.canceled || !r.assets[0]) return;
-    const a = r.assets[0];
-    setPreview(a.uri);
-    const blob = await (await fetch(a.uri)).blob().catch(() => undefined);
-    const media = await uploadPickedMedia({ api, file: { uri: a.uri, name: a.fileName ?? 'social.jpg', type: a.mimeType ?? 'image/jpeg', blob } });
-    setMediaId(media.id);
-  };
-
-  const publish = async (schedule: boolean) => {
-    if (!content.trim() || picked.length === 0) {
-      setError(t('mobile.screens.social.need'));
-      return;
-    }
-    setBusy(true);
-    setError('');
-    try {
-      let scheduledAt = 0;
-      if (schedule) {
-        const v = await renderer.ui.prompt({ title: t('mobile.screens.social.schedule'), fields: [{ name: 'when', type: 'datetime', label: t('mobile.screens.social.schedule'), required: true }] });
-        if (!v?.when) return;
-        scheduledAt = Math.floor(new Date(String(v.when)).getTime() / 1000);
-        if (!scheduledAt) return;
-      }
-      await api('flx-social/v1/posts', { method: 'POST', body: socialPostBody({ content, accountIds: picked, mediaIds: mediaId ? [mediaId] : [], scheduledAt }) });
-      renderer.ui.toast(t('mobile.screens.social.sent'), 'ok');
-      setContent('');
-      setMediaId(null);
-      setPreview(null);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  return (
-    <ScrollView testID="screen-social" contentContainerStyle={styles.wrap} keyboardShouldPersistTaps="handled">
-      <Text variant="label">{t('mobile.screens.social.accounts')}</Text>
-      {accounts.length === 0 && !boot.isPending ? <Text tone="muted">{t('mobile.screens.social.noAccounts')}</Text> : null}
-      <Chips>
-        {accounts.map((a) => (
-          <Chip key={a.id} label={`${a.name} · ${a.provider}`} color={a.color} active={picked.includes(a.id)} onPress={() => toggle(a.id)} />
-        ))}
-      </Chips>
-      <TextInput
-        testID="social-body"
-        value={content}
-        onChangeText={setContent}
-        placeholder={t('mobile.screens.social.placeholder')}
-        placeholderTextColor={theme.colors.textMuted}
-        multiline
-        style={styles.input}
-        accessibilityLabel={t('mobile.screens.social.placeholder')}
-      />
-      {preview ? (
-        <Pressable onPress={() => (setPreview(null), setMediaId(null))} accessibilityRole="image" accessibilityLabel={t('mobile.screens.social.attach')}>
-          <Image source={{ uri: preview }} style={styles.preview} contentFit="cover" />
-        </Pressable>
-      ) : (
-        <Button kind="secondary" icon="image" label={t('mobile.screens.social.attach')} onPress={() => void attach()} />
-      )}
-      {error ? <Text tone="danger">{error}</Text> : null}
-      <View style={styles.actions}>
-        <Button kind="secondary" label={t('mobile.screens.social.schedule')} onPress={() => void publish(true)} disabled={busy} />
-        <Button label={t('mobile.screens.social.publish')} onPress={() => void publish(false)} loading={busy} />
-      </View>
-    </ScrollView>
-  );
+interface StudioMedia{id:number;attachment_id?:number;url:string;thumb?:string;kind:'image'|'video';title?:string;prompt?:string}
+function MediaPicker({c,close}:{c:Controller;close:()=>void}){
+ const {t,state:s,api,session}=c;const insets=useSafeAreaInsets();const {height}=useWindowDimensions();const [source,setSource]=useState<'library'|'studio'>('library');const [search,setSearch]=useState('');const [term,setTerm]=useState('');const [page,setPage]=useState(1);const [chosen,setChosen]=useState<Record<string,SocialMedia>>({});const [url,setUrl]=useState('');
+ useEffect(()=>{const timer=setTimeout(()=>{setTerm(search);setPage(1);},250);return()=>clearTimeout(timer);},[search]);
+ const query=useQuery<{items:(SocialMedia&{key:string})[];pages:number}>({queryKey:[c.account.id,'social-media',source,term,page],queryFn:async({signal})=>{if(source==='studio'){const r=await api<{items:StudioMedia[]}>('flx-social/v1/media/studio',{signal});return {items:r.items.filter(m=>(m.title||m.prompt||'').toLocaleLowerCase().includes(term.toLocaleLowerCase())).map(m=>({id:m.attachment_id||0,url:m.url,thumb:m.thumb,kind:m.kind,name:m.title||m.prompt,key:`studio-${m.id}`})),pages:1};}const r=await api<{items:SocialMedia[];pages:number}>('flx-social/v1/media',{signal,query:{q:term,page}});return {...r,items:r.items.map(m=>({...m,key:`media-${m.id}`}))};}});
+ const finish=()=>{if(!session.state.error&&!session.state.issues.length)close();};
+ const upload=async()=>{try{const r=await ImagePicker.launchImageLibraryAsync({mediaTypes:['images','videos'],allowsMultipleSelection:true,quality:1});if(r.canceled)return;await session.upload(await Promise.all(r.assets.map(async a=>({uri:a.uri,name:a.fileName||`media.${a.type==='video'?'mp4':'jpg'}`,type:a.mimeType||(a.type==='video'?'video/mp4':'image/jpeg'),...(Platform.OS==='web'?{blob:await (await fetch(a.uri)).blob()}:{} )}))));finish();}catch(e){c.renderer.ui.toast(e instanceof Error?e.message:String(e),'error');}};
+ return <Modal visible animationType="slide" onRequestClose={()=>{if(!s.busy)close();}}><View style={[styles.modal,{paddingTop:insets.top+12,paddingBottom:insets.bottom+12}]}><View style={styles.row}><Text variant="heading" style={styles.fill}>{t('socialComposer.media')}</Text><Button kind="ghost" disabled={!!s.busy} label={t('common.close')} onPress={close}/></View>
+  <View style={styles.choices}><Button kind={source==='library'?'primary':'secondary'} label={t('socialComposer.library')} onPress={()=>{setSource('library');setPage(1);}}/>{s.boot?.studio&&<Button kind={source==='studio'?'primary':'secondary'} label="Flux Studio" onPress={()=>{setSource('studio');setPage(1);}}/>}{s.boot?.user.upload&&<Button kind="secondary" disabled={!!s.busy} label={t('socialComposer.upload')} onPress={()=>void upload()}/>}</View>
+  <Field label={t('socialComposer.searchMedia')} value={search} onChangeText={setSearch} autoCorrect={false}/>{s.boot?.user.upload&&<View style={styles.gap}><Field label={t('socialComposer.mediaUrl')} value={url} onChangeText={setUrl} keyboardType="url" autoCapitalize="none"/><Button kind="secondary" disabled={!!s.busy||!url.trim()} label={t('socialComposer.importUrl')} onPress={()=>void session.importUrl(url).then(finish)}/></View>}
+  {!!s.error&&<Text tone="danger">{s.error}</Text>}{query.isError&&<Text tone="danger">{query.error.message}</Text>}
+  <FlatList style={{flex:1,minHeight:height*.2}} data={query.data?.items||[]} numColumns={2} keyExtractor={m=>m.key} keyboardShouldPersistTaps="handled" ListEmptyComponent={<Text>{t(query.isPending?'states.loading':'socialComposer.noMedia')}</Text>} renderItem={({item:m})=><Pressable accessibilityRole="checkbox" aria-checked={!!chosen[m.key]} accessibilityLabel={m.name||m.kind} accessibilityState={{checked:!!chosen[m.key],disabled:!!s.busy||!m.id&&!s.boot?.user.upload}} disabled={!!s.busy||!m.id&&!s.boot?.user.upload} onPress={()=>setChosen(old=>{const next={...old};if(next[m.key])delete next[m.key];else next[m.key]=m;return next;})} style={[styles.tile,chosen[m.key]&&styles.selected]}>{m.thumb||m.kind!=='video'?<Image source={{uri:m.thumb||m.url}} style={styles.thumb} contentFit="cover"/>:<Text>{m.kind}</Text>}<Text variant="caption" numberOfLines={2}>{chosen[m.key]?'✓ ':''}{m.name||m.kind}</Text></Pressable>}/>
+  <View style={styles.row}><Button kind="ghost" disabled={page<=1||query.isFetching} label={t('nav.back')} onPress={()=>setPage(p=>p-1)}/><Text>{page} / {Math.max(1,query.data?.pages||1)}</Text><Button kind="ghost" disabled={page>=(query.data?.pages||1)||query.isFetching} label={t('nav.forward')} onPress={()=>setPage(p=>p+1)}/></View><Button label={t('socialComposer.addSelected',{count:Object.keys(chosen).length})} disabled={!!s.busy||!Object.keys(chosen).length} loading={s.busy==='upload'} onPress={()=>void session.addMedia(Object.values(chosen)).then(finish)}/>
+ </View></Modal>;
 }
-
-const styles = StyleSheet.create((theme) => ({
-  wrap: { padding: theme.space[4], gap: theme.space[3], paddingBottom: theme.space[12] },
-  input: { minHeight: 140, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radius.md, padding: theme.space[3], color: theme.colors.text, fontSize: 16, fontFamily: theme.font.family, backgroundColor: theme.colors.surface, textAlignVertical: 'top' },
-  preview: { width: '100%', height: 220, borderRadius: theme.radius.md, backgroundColor: theme.colors.surface2 },
-  actions: { flexDirection: 'row', gap: 8 },
-}));
+const styles=StyleSheet.create(theme=>({wrap:{padding:16,gap:14,paddingBottom:40},gap:{gap:12},fill:{flex:1},row:{flexDirection:'row',alignItems:'center',gap:8},choices:{flexDirection:'row',flexWrap:'wrap',gap:8},account:{flexDirection:'row',alignItems:'center',gap:12,minHeight:48,padding:12,borderWidth:1,borderColor:theme.colors.border,borderRadius:theme.radius.md,width:'100%'},selected:{borderColor:theme.colors.primary,backgroundColor:theme.colors.primarySoft},editor:{minHeight:150,textAlignVertical:'top'},mediaRow:{gap:10},mediaItem:{width:220,gap:6},media:{width:220,height:180,borderRadius:theme.radius.md,backgroundColor:theme.colors.surface2},modal:{flex:1,backgroundColor:theme.colors.bg,paddingHorizontal:16,gap:12},tile:{flex:1,maxWidth:'50%',margin:4,padding:6,borderWidth:2,borderColor:theme.colors.border,borderRadius:theme.radius.md,gap:6},thumb:{width:'100%',height:120,borderRadius:theme.radius.sm}}));

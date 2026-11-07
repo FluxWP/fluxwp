@@ -132,10 +132,10 @@
       "component": "flxai-chat",
       "fallback": { "web": "admin.php?page=flx-ai" }
     },
-    "billing": { "type": "web", "title": "Faturalandırma", "path": "admin.php?page=flx-ai-billing" },
-    "systems": { "type": "web", "title": "Bağlı sistemler", "path": "admin.php?page=flx-ai-systems" },
-    "tools": { "type": "web", "title": "Araçlar", "path": "admin.php?page=flx-ai-tools" },
-    "mcp": { "type": "web", "title": "MCP", "path": "admin.php?page=flx-ai-mcp" }
+    "billing": { "type": "native", "title": "Faturalandırma", "component": "flxai-billing", "fallback": { "web": "admin.php?page=flx-ai-billing" } },
+    "systems": { "type": "native", "title": "$t:aiSystems.title", "component": "flxai-systems", "fallback": { "web": "admin.php?page=flx-ai-systems" } },
+    "tools": { "type": "native", "title": "Araçlar", "component": "flxai-tools", "fallback": { "web": "admin.php?page=flx-ai-tools" } },
+    "mcp": { "type": "native", "title": "$t:aiMcp.title", "component": "flxai-mcp", "fallback": { "web": "admin.php?page=flx-ai-mcp" } }
   },
   "actions": {
     "open_chat": {

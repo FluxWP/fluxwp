@@ -220,10 +220,10 @@ describe('prefs, devices and etag', () => {
   it('keeps the cached config on 304 and reads wp paging headers', async () => {
     const first = await loadConfig(api);
     expect(first.notModified).toBe(false);
-    expect(first.etag).toBe('"demo-config-032-menu"');
+    expect(first.etag).toBe('"demo-config-native-admin-032-menu"');
     expect(first.value?.schema).toBe('flx-app-config/1');
     const again = await loadConfig(api, undefined, first.etag);
-    expect(again).toMatchObject({ notModified: true, value: null, etag: '"demo-config-032-menu"' });
+    expect(again).toMatchObject({ notModified: true, value: null, etag: first.etag });
     const page = await api<unknown[]>('wp/v2/posts', { raw: true, query: { per_page: 3, page: 1 } });
     expect(page.headers.get('X-WP-TotalPages')).toBe('3');
     expect(page.headers.get('x-wp-total')).toBe('8');
@@ -253,7 +253,7 @@ describe('demo transport', () => {
     const boot = await loadBootstrap(DEMO_SITE, demoShellFetch);
     expect(boot?.auth.clients).toEqual({ mobile: 'flx-mobil', desktop: 'flx-masaustu' });
     expect(boot?.auth.login_url).toBe('https://demo.fluxapp.local/fluxadmin/');
-    expect(Object.keys(parseManifestBundle(await api('flxapp/v1/manifest')).modules)).toEqual(['crm']);
+    expect(Object.keys(parseManifestBundle(await api('flxapp/v1/manifest')).modules)).toEqual(['crm', 'ai']);
     const res = await demoShellFetch(`${DEMO_SITE}/wp-json/wp/v2/posts?per_page=3&page=1`);
     expect(res.headers.get('X-WP-TotalPages')).toBe('3');
   });
@@ -274,7 +274,9 @@ describe('platform neutrality', () => {
       for (const f of files(dir)) {
         const src = readFileSync(f, 'utf8');
         expect(src, f).not.toMatch(/from ['"](react-native|react-dom|expo[\w-]*)['"/]/);
-        expect(src, f).not.toMatch(/\b(document|window|localStorage)\./);
+        // Member names such as state.document are domain models, not browser globals.
+        expect(src, f).not.toMatch(/(?:^|[^\w$.])(document|window|localStorage)\./);
+        expect(src, f).not.toMatch(/\bglobalThis\.(document|window|localStorage)\b/);
       }
     }
   });

@@ -93,7 +93,7 @@
           ]
         }
       ],
-      "actions": { "header": ["compose", "approve", "post_delete"], "footer": ["open_panel"] }
+      "actions": { "header": ["edit_post", "approve", "post_delete"], "footer": ["open_panel"] }
     },
     "calendar": {
       "type": "list",
@@ -142,6 +142,11 @@
       "label": "Yeni gönderi",
       "icon": "plus",
       "navigate": { "target": "screen:social/composer" }
+    },
+    "edit_post": {
+      "label": "Düzenle",
+      "icon": "edit",
+      "navigate": { "target": "screen:social/composer", "params": { "id": "{{id}}" } }
     },
     "approve": {
       "label": "Onayla",

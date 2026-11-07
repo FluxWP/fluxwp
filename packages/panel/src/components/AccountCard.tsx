@@ -46,7 +46,7 @@ export function AccountCard({ active }: { active: Account }) {
 
   return (
     <div className="account" ref={ref}>
-      <button className={'account-card' + (open ? ' open' : '')} onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-haspopup="menu">
+      <button className={'account-card' + (open ? ' open' : '')} onClick={() => setOpen((o) => !o)} aria-label={`${name} · ${active.siteName}`} aria-expanded={open} aria-haspopup="menu">
         <span className="account-av">
           <Avatar src={avatar} name={name} size={34} />
           {active.needsLogin && <span className="account-warn" />}

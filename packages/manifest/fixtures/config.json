@@ -90,7 +90,9 @@
             "menu:flx-tasks",
             "menu:flxb-dashboard",
             "menu:flxs",
-            "menu:flxi-posta"
+            "menu:flxi-posta",
+            "module:flxr-roles",
+            "module:flxl-languages"
           ]
         },
         {

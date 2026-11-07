@@ -11,6 +11,7 @@ import { desktopRenderer } from './renderer';
 import { ensureI18n, i18n } from './i18n';
 import { applyTheme, brandTheme } from './theme';
 import { APP_VERSION } from './version';
+import { AiProvider } from './ai/AiWorkspace';
 import '@fluxwp/ui/src/styles.css';
 import '@fluxwp/render-web/styles.css';
 import './styles.css';
@@ -68,7 +69,7 @@ function Root({ mode }: { mode: 'light' | 'dark' }) {
     <AccountScope key={active.id} account={active} renderer={renderer} app={app} store={accountStore(active.id)}>
       <AccountTheme mode={mode} />
       <RememberSite />
-      <Shell />
+      <AiProvider><Shell /></AiProvider>
     </AccountScope>
   );
 }

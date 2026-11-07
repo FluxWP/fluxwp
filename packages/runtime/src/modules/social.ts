@@ -23,7 +23,8 @@ export function socialPostBody(d: SocialDraft) {
     media: d.mediaIds ?? [],
     source: 'app' as const,
     scheduled_at: when,
-    action: when > 0 ? 'schedule' : 'publish',
+    // flxsm_apply_action accepts "now"; "publish" is rejected as unknown.
+    action: when > 0 ? 'schedule' : 'now',
     targets: d.accountIds.map((account_id) => ({ account_id })),
   };
 }

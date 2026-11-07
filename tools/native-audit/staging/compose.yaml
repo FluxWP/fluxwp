@@ -1,0 +1,49 @@
+name: fluxwp-native-qa
+services:
+  db:
+    image: mariadb:11.4
+    environment:
+      MARIADB_DATABASE: fluxwp_qa
+      MARIADB_USER: fluxqa
+      MARIADB_PASSWORD: ${FLUX_QA_DB_PASSWORD:?}
+      MARIADB_ROOT_PASSWORD: ${FLUX_QA_DB_ROOT_PASSWORD:?}
+    volumes:
+      - database:/var/lib/mysql
+    healthcheck:
+      test: [CMD, mariadb-admin, ping, -h, localhost, --silent]
+      interval: 3s
+      timeout: 3s
+      retries: 40
+  wordpress:
+    image: wordpress:7.1.4-php8.3-apache
+    depends_on:
+      db: {condition: service_healthy}
+    env_file: ["${FLUX_QA_ENV_FILE:?}"]
+    environment: &wp_environment
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: fluxwp_qa
+      WORDPRESS_DB_USER: fluxqa
+      WORDPRESS_DB_PASSWORD: ${FLUX_QA_DB_PASSWORD:?}
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_ENVIRONMENT_TYPE', 'local');
+        define('FLUX_NATIVE_QA', true);
+        define('DISABLE_WP_CRON', true);
+        define('WP_AUTO_UPDATE_CORE', false);
+    ports: ["127.0.0.1:8874:80"]
+    volumes: &wp_volumes
+      - wordpress:/var/www/html
+      - ${FLUX_QA_REPO:?}:/opt/fluxwp-public:ro
+      - ${FLUX_QA_EXTRAS:?}:/opt/fluxwp-private:ro
+      - ./qa-guard.php:/var/www/html/wp-content/mu-plugins/fluxwp-native-qa.php:ro
+  cli:
+    image: wordpress:cli-2.12.0-php8.3
+    user: "33:33"
+    profiles: [tools]
+    depends_on:
+      db: {condition: service_healthy}
+    env_file: ["${FLUX_QA_ENV_FILE:?}"]
+    environment: *wp_environment
+    volumes: *wp_volumes
+volumes:
+  database:
+  wordpress:

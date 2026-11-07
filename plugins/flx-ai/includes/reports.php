@@ -22,6 +22,20 @@ function flxai_report_where( $from, $to, $source = '' ) {
 	return $w;
 }
 
+/** Local calendar-day SQL without depending on the database timezone tables. */
+function flxai_report_day_sql( $from, $to ) {
+	$tz      = wp_timezone();
+	$initial = $tz->getOffset( new DateTimeImmutable( '@' . (int) $from ) );
+	$cases   = array();
+	foreach ( array_reverse( (array) $tz->getTransitions( $from, $to ) ) as $transition ) {
+		if ( (int) $transition['ts'] > $from ) {
+			$cases[] = 'WHEN ts >= ' . (int) $transition['ts'] . ' THEN ' . (int) $transition['offset'];
+		}
+	}
+	$offset = $cases ? 'CASE ' . implode( ' ', $cases ) . ' ELSE ' . (int) $initial . ' END' : (string) (int) $initial;
+	return 'FLOOR((ts + (' . $offset . ')) / 86400)';
+}
+
 /**
  * Son N günün raporu.
  *
@@ -30,13 +44,12 @@ function flxai_report_where( $from, $to, $source = '' ) {
 function flxai_report( $days = 30, $source = '', $from = 0, $to = 0 ) {
 	global $wpdb;
 	$t   = flxai_table( 'log' );
-	$off = flxai_tz_offset();
 	if ( ! $from ) {
-		$starts = flxai_period_starts();
 		$to     = time() + 1;
-		$from   = $starts['day'] - ( max( 1, (int) $days ) - 1 ) * DAY_IN_SECONDS;
+		$from   = ( new DateTimeImmutable( 'today', wp_timezone() ) )->modify( '-' . ( max( 1, (int) $days ) - 1 ) . ' days' )->getTimestamp();
 	}
-	$w = flxai_report_where( $from, $to, $source );
+	$w       = flxai_report_where( $from, $to, $source );
+	$day_sql = flxai_report_day_sql( $from, $to );
 
 	$tot = $wpdb->get_row(
 		"SELECT
@@ -55,14 +68,11 @@ function flxai_report( $days = 30, $source = '', $from = 0, $to = 0 ) {
 	$totals['saved'] = max( 0, ( $totals['full_cost'] ?? 0 ) - ( $totals['cost'] ?? 0 ) );
 
 	$rows  = $wpdb->get_results(
-		$wpdb->prepare(
-			"SELECT FLOOR((ts + %d) / 86400) AS d,
+			"SELECT {$day_sql} AS d,
 				SUM(cost) AS cost, SUM(in_tok) AS in_tok, SUM(out_tok) AS out_tok, SUM(cache_read) AS cr,
 				SUM(CASE WHEN kind='model' THEN ms ELSE 0 END) AS model_ms, SUM(CASE WHEN kind='tool' THEN ms ELSE 0 END) AS tool_ms,
 				SUM(kind='model') AS calls, SUM(kind='tool') AS tools, SUM(ok=0) AS errors
 			FROM {$t} WHERE {$w} GROUP BY d ORDER BY d", // phpcs:ignore
-			$off
-		),
 		ARRAY_A
 	);
 	$by_d  = array();
@@ -70,8 +80,9 @@ function flxai_report( $days = 30, $source = '', $from = 0, $to = 0 ) {
 		$by_d[ (int) $r['d'] ] = $r;
 	}
 	$daily = array();
-	$d0    = (int) floor( ( $from + $off ) / 86400 );
-	$d1    = (int) floor( ( $to - 1 + $off ) / 86400 );
+	$utc   = new DateTimeZone( 'UTC' );
+	$d0    = (int) floor( ( new DateTimeImmutable( wp_date( 'Y-m-d', $from ), $utc ) )->getTimestamp() / 86400 );
+	$d1    = (int) floor( ( new DateTimeImmutable( wp_date( 'Y-m-d', $to - 1 ), $utc ) )->getTimestamp() / 86400 );
 	for ( $d = $d0; $d <= $d1; $d++ ) {
 		$r       = $by_d[ $d ] ?? array();
 		$daily[] = array(
@@ -138,7 +149,7 @@ function flxai_report( $days = 30, $source = '', $from = 0, $to = 0 ) {
 /** Ay aralığı (Y-m) → array( from, to ) site saat dilimine göre. */
 function flxai_month_range( $ym ) {
 	$tz = wp_timezone();
-	if ( ! preg_match( '/^\d{4}-\d{2}$/', (string) $ym ) ) {
+	if ( ! preg_match( '/^\d{4}-(?:0[1-9]|1[0-2])$/', (string) $ym ) ) {
 		$ym = wp_date( 'Y-m' );
 	}
 	$a = new DateTimeImmutable( $ym . '-01 00:00:00', $tz );
@@ -219,6 +230,37 @@ function flxai_openrouter_credits() {
 	return $res;
 }
 
+/** The same monthly export is used by the admin download and authenticated app API. */
+function flxai_billing_csv( $ym ) {
+	global $wpdb;
+	list( $from, $to ) = flxai_month_range( $ym );
+	$fh = fopen( 'php://temp', 'w+' ); // phpcs:ignore
+	fwrite( $fh, "\xEF\xBB\xBF" ); // phpcs:ignore
+	fputcsv( $fh, array( 'time', 'kind', 'source', 'purpose', 'user_id', 'provider', 'model', 'tool', 'in_tokens', 'out_tokens', 'cache_read', 'cache_write', 'cost_usd', 'cost_without_cache_usd', 'estimated', 'ms', 'ok', 'error' ), ',', '"', '' );
+	$cursor = 0;
+	$at = $from;
+	$through = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT MAX(id) FROM ' . flxai_table( 'log' ) . ' WHERE ts >= %d AND ts < %d', $from, $to ) ); // phpcs:ignore
+	do {
+		$rows = $wpdb->get_results( $wpdb->prepare( 'SELECT id, ts, kind, source, purpose, user_id, provider, model, tool, in_tok, out_tok, cache_read, cache_write, cost, full_cost, est, ms, ok, error FROM ' . flxai_table( 'log' ) . ' WHERE ts >= %d AND ts < %d AND id <= %d AND (ts > %d OR (ts = %d AND id > %d)) ORDER BY ts, id LIMIT 500', $from, $to, $through, $at, $at, $cursor ), ARRAY_A ); // phpcs:ignore
+		foreach ( (array) $rows as $r ) {
+			$values = array( wp_date( 'Y-m-d H:i:s', (int) $r['ts'] ), $r['kind'], $r['source'], $r['purpose'], $r['user_id'], $r['provider'], $r['model'], $r['tool'], $r['in_tok'], $r['out_tok'], $r['cache_read'], $r['cache_write'], $r['cost'], $r['full_cost'], $r['est'], $r['ms'], $r['ok'], $r['error'] );
+			foreach ( $values as &$value ) {
+				if ( is_string( $value ) && ! is_numeric( $value ) && preg_match( '/^\s*[=+@-]|^[\t\r]/u', $value ) ) {
+					$value = "'" . $value;
+				}
+			}
+			unset( $value );
+			fputcsv( $fh, $values, ',', '"', '' );
+			$cursor = (int) $r['id'];
+			$at = (int) $r['ts'];
+		}
+	} while ( count( (array) $rows ) === 500 );
+	rewind( $fh );
+	$csv = stream_get_contents( $fh );
+	fclose( $fh ); // phpcs:ignore
+	return array( 'filename' => 'flx-ai-' . wp_date( 'Y-m', $from ) . '.csv', 'csv' => $csv );
+}
+
 /** CSV dışa aktarma: seçilen ayın tüm satırları. */
 add_action(
 	'admin_post_flxai_csv',
@@ -227,20 +269,11 @@ add_action(
 			wp_die( esc_html__( 'Yetkiniz yok.', 'flx-ai' ), 403 );
 		}
 		check_admin_referer( 'flxai_csv' );
-		global $wpdb;
-		$ym                = sanitize_text_field( wp_unslash( $_GET['ym'] ?? '' ) );
-		list( $from, $to ) = flxai_month_range( $ym );
-		$rows              = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . flxai_table( 'log' ) . ' WHERE ts >= %d AND ts < %d ORDER BY ts', $from, $to ), ARRAY_A ); // phpcs:ignore
+		$export = flxai_billing_csv( sanitize_text_field( wp_unslash( $_GET['ym'] ?? '' ) ) );
 		nocache_headers();
 		header( 'Content-Type: text/csv; charset=utf-8' );
-		header( 'Content-Disposition: attachment; filename="flx-ai-' . wp_date( 'Y-m', $from ) . '.csv"' );
-		$fh = fopen( 'php://output', 'w' ); // phpcs:ignore
-		fwrite( $fh, "\xEF\xBB\xBF" ); // phpcs:ignore
-		fputcsv( $fh, array( 'time', 'kind', 'source', 'purpose', 'user_id', 'provider', 'model', 'tool', 'in_tokens', 'out_tokens', 'cache_read', 'cache_write', 'cost_usd', 'cost_without_cache_usd', 'estimated', 'ms', 'ok', 'error' ) );
-		foreach ( (array) $rows as $r ) {
-			fputcsv( $fh, array( wp_date( 'Y-m-d H:i:s', (int) $r['ts'] ), $r['kind'], $r['source'], $r['purpose'], $r['user_id'], $r['provider'], $r['model'], $r['tool'], $r['in_tok'], $r['out_tok'], $r['cache_read'], $r['cache_write'], $r['cost'], $r['full_cost'], $r['est'], $r['ms'], $r['ok'], $r['error'] ) );
-		}
-		fclose( $fh ); // phpcs:ignore
+		header( 'Content-Disposition: attachment; filename="' . $export['filename'] . '"' );
+		echo $export['csv']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- CSV, not HTML.
 		exit;
 	}
 );

@@ -6,16 +6,23 @@
   "icon": "globe",
   "menu": "options-general.php?page=flx-lang",
   "entry": "settings",
-  "fallback": { "web": "options-general.php?page=flx-lang" },
+  "fallback": {
+    "web": "options-general.php?page=flx-lang"
+  },
   "routes": {
-    "options-general.php?page=flx-lang": { "screen": "settings" }
+    "options-general.php?page=flx-lang": {
+      "screen": "settings"
+    }
   },
   "sources": {},
   "screens": {
     "settings": {
-      "type": "web",
+      "type": "native",
       "title": "Diller",
-      "path": "options-general.php?page=flx-lang"
+      "component": "flxl-languages",
+      "fallback": {
+        "web": "options-general.php?page=flx-lang"
+      }
     }
   },
   "actions": {}

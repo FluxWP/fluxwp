@@ -30,6 +30,7 @@ export {
 } from './modules/tasks/engine';
 export { parseChecklist, toggleChecklistItem, type CheckItem } from './modules/tasks/checklist';
 export { messageText, parseNdjson, readAiStream, streamAiStep, type AiChat, type AiEvent, type AiMessage, type AiPending } from './modules/ai';
+export { AiSession, type AiSessionState, type AiDecision, type AiBoot } from './modules/ai-session';
 export { mediaForm, mediaThumb, uploadPickedMedia, type MediaFile, type WpMedia } from './modules/media';
 export { postBody, postEditPath, type PostDraft, type PostStatus, type WpPost } from './modules/post';
 export { socialPostBody, type SocialAccount, type SocialDraft } from './modules/social';
@@ -37,4 +38,4 @@ export { studioBusy, studioGenerateBody, type StudioItem, type StudioKind, type 
 export { TV_KEYS, tvCommandAllowed, type TvApp, type TvCommand, type TvState } from './modules/tv';
 
 /** Native screen ids manifests and module targets can open (plan §13 N rows). */
-export const NATIVE_SCREEN_IDS = ['flxc-inbox', 'flxg-tasks', 'flxb-review', 'core-post', 'core-media', 'flxsm-compose', 'studio', 'flx-studio', 'flx-ai', 'tv-remote', 'flx-tv-remote'] as const;
+export const NATIVE_SCREEN_IDS = ['flxc-inbox', 'flxg-tasks', 'flxb-review', 'core-post', 'core-media', 'flxsm-compose', 'flxsm-composer', 'studio', 'flx-studio', 'flx-ai', 'flxai-chat', 'flxai-billing', 'flxai-tools', 'flxai-systems', 'flxai-mcp', 'tv-remote', 'flx-tv-remote'] as const;

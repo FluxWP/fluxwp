@@ -1,0 +1,1641 @@
+{
+  "source": "Offline raw source manifests; capability pruning and live account verification are separate.",
+  "appVersion": "0.3.0",
+  "moduleCount": 19,
+  "screenCount": 87,
+  "explicitWebCount": 14,
+  "versionGatedScreenCount": 81,
+  "missingNativeComponents": [],
+  "pluginsWithoutPublishedManifest": [
+    "flx-updater-manager",
+    "flx-migrate",
+    "flx-app",
+    "flx-forms",
+    "flx-chatbot",
+    "flx-tasks",
+    "flx-chat",
+    "flx-admin"
+  ],
+  "screens": [
+    {
+      "plugin": "flx-lang",
+      "module": "lang",
+      "screen": "settings",
+      "type": "native",
+      "source": "plugins/flx-lang/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": "flxl-languages",
+      "componentRegistered": true,
+      "path": null,
+      "routes": [
+        "options-general.php?page=flx-lang"
+      ],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-recaptcha",
+      "module": "recaptcha",
+      "screen": "settings",
+      "type": "settings",
+      "source": "plugins/flx-recaptcha/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flx-recaptcha"
+      ],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-recaptcha",
+      "module": "recaptcha",
+      "screen": "forms",
+      "type": "web",
+      "source": "plugins/flx-recaptcha/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": "admin.php?page=flx-recaptcha",
+      "routes": [],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-backup",
+      "module": "backup",
+      "screen": "list",
+      "type": "list",
+      "source": "plugins/flx-backup/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flx-backup",
+        "admin.php?page=flx-backup-list"
+      ],
+      "sources": [
+        "backups"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-backup",
+      "module": "backup",
+      "screen": "backup",
+      "type": "detail",
+      "source": "plugins/flx-backup/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [
+        "backup"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-backup",
+      "module": "backup",
+      "screen": "restore",
+      "type": "web",
+      "source": "plugins/flx-backup/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": "admin.php?page=flx-backup",
+      "routes": [],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-analytics",
+      "module": "analytics",
+      "screen": "overview",
+      "type": "dashboard",
+      "source": "plugins/flx-analytics/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flx-analytics"
+      ],
+      "sources": [
+        "report"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-analytics",
+      "module": "analytics",
+      "screen": "live",
+      "type": "dashboard",
+      "source": "plugins/flx-analytics/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [
+        "live"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-analytics",
+      "module": "analytics",
+      "screen": "pages",
+      "type": "list",
+      "source": "plugins/flx-analytics/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [
+        "pages"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-analytics",
+      "module": "analytics",
+      "screen": "sources",
+      "type": "tabs",
+      "source": "plugins/flx-analytics/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-analytics",
+      "module": "analytics",
+      "screen": "referrers",
+      "type": "list",
+      "source": "plugins/flx-analytics/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [
+        "referrers"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-analytics",
+      "module": "analytics",
+      "screen": "channels",
+      "type": "list",
+      "source": "plugins/flx-analytics/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [
+        "channels"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-ai",
+      "module": "ai",
+      "screen": "settings",
+      "type": "settings",
+      "source": "plugins/flx-ai/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flx-ai-settings"
+      ],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-ai",
+      "module": "ai",
+      "screen": "log",
+      "type": "list",
+      "source": "plugins/flx-ai/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flx-ai-log"
+      ],
+      "sources": [
+        "log"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-ai",
+      "module": "ai",
+      "screen": "chat",
+      "type": "native",
+      "source": "plugins/flx-ai/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": "flxai-chat",
+      "componentRegistered": true,
+      "path": null,
+      "routes": [
+        "admin.php?page=flx-ai"
+      ],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-ai",
+      "module": "ai",
+      "screen": "billing",
+      "type": "native",
+      "source": "plugins/flx-ai/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": "flxai-billing",
+      "componentRegistered": true,
+      "path": null,
+      "routes": [
+        "admin.php?page=flx-ai-billing"
+      ],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-ai",
+      "module": "ai",
+      "screen": "systems",
+      "type": "native",
+      "source": "plugins/flx-ai/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": "flxai-systems",
+      "componentRegistered": true,
+      "path": null,
+      "routes": [
+        "admin.php?page=flx-ai-systems"
+      ],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-ai",
+      "module": "ai",
+      "screen": "tools",
+      "type": "native",
+      "source": "plugins/flx-ai/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": "flxai-tools",
+      "componentRegistered": true,
+      "path": null,
+      "routes": [
+        "admin.php?page=flx-ai-tools"
+      ],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-ai",
+      "module": "ai",
+      "screen": "mcp",
+      "type": "native",
+      "source": "plugins/flx-ai/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": "flxai-mcp",
+      "componentRegistered": true,
+      "path": null,
+      "routes": [
+        "admin.php?page=flx-ai-mcp"
+      ],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-seo",
+      "module": "seo",
+      "screen": "audit",
+      "type": "dashboard",
+      "source": "plugins/flx-seo/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flxseo&tab=denetim"
+      ],
+      "sources": [
+        "audit"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-seo",
+      "module": "seo",
+      "screen": "findings",
+      "type": "list",
+      "source": "plugins/flx-seo/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [
+        "findings"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-seo",
+      "module": "seo",
+      "screen": "settings",
+      "type": "settings",
+      "source": "plugins/flx-seo/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flxseo"
+      ],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-social",
+      "module": "social",
+      "screen": "posts",
+      "type": "list",
+      "source": "plugins/flx-social/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flx-social"
+      ],
+      "sources": [
+        "posts"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-social",
+      "module": "social",
+      "screen": "post",
+      "type": "detail",
+      "source": "plugins/flx-social/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [
+        "post"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-social",
+      "module": "social",
+      "screen": "calendar",
+      "type": "list",
+      "source": "plugins/flx-social/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [
+        "calendar"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-social",
+      "module": "social",
+      "screen": "accounts",
+      "type": "list",
+      "source": "plugins/flx-social/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [
+        "accounts"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-social",
+      "module": "social",
+      "screen": "composer",
+      "type": "native",
+      "source": "plugins/flx-social/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": "flxsm-composer",
+      "componentRegistered": true,
+      "path": null,
+      "routes": [],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-roles",
+      "module": "roles",
+      "screen": "matrix",
+      "type": "native",
+      "source": "plugins/flx-roles/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": "flxr-roles",
+      "componentRegistered": true,
+      "path": null,
+      "routes": [
+        "users.php?page=flx-roles"
+      ],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-wiki",
+      "module": "wiki",
+      "screen": "pages",
+      "type": "list",
+      "source": "plugins/flx-wiki/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "edit.php?post_type=flx_wiki"
+      ],
+      "sources": [
+        "pages"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-wiki",
+      "module": "wiki",
+      "screen": "page",
+      "type": "content",
+      "source": "plugins/flx-wiki/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": "html",
+      "routes": [
+        "post.php?post={id}&action=edit"
+      ],
+      "sources": [
+        "page"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-wiki",
+      "module": "wiki",
+      "screen": "page_form",
+      "type": "form",
+      "source": "plugins/flx-wiki/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-wiki",
+      "module": "wiki",
+      "screen": "search",
+      "type": "list",
+      "source": "plugins/flx-wiki/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [
+        "search"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-studio",
+      "module": "studio",
+      "screen": "gallery",
+      "type": "list",
+      "source": "plugins/flx-studio/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flx-studio"
+      ],
+      "sources": [
+        "items"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-studio",
+      "module": "studio",
+      "screen": "item",
+      "type": "detail",
+      "source": "plugins/flx-studio/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [
+        "item"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-setup",
+      "module": "setup",
+      "screen": "packages",
+      "type": "web",
+      "source": "plugins/flx-setup/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": "admin.php?page=flx-setup",
+      "routes": [
+        "admin.php?page=flx-setup"
+      ],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-setup",
+      "module": "setup",
+      "screen": "wizard",
+      "type": "web",
+      "source": "plugins/flx-setup/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": "admin.php?page=flx-setup-wizard",
+      "routes": [
+        "admin.php?page=flx-setup-wizard"
+      ],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-setup",
+      "module": "setup",
+      "screen": "presets",
+      "type": "web",
+      "source": "plugins/flx-setup/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": "admin.php?page=flx-setup-presets",
+      "routes": [
+        "admin.php?page=flx-setup-presets"
+      ],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-setup",
+      "module": "setup",
+      "screen": "settings",
+      "type": "web",
+      "source": "plugins/flx-setup/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": "admin.php?page=flx-setup-settings",
+      "routes": [
+        "admin.php?page=flx-setup-settings"
+      ],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-speed",
+      "module": "speed",
+      "screen": "summary",
+      "type": "dashboard",
+      "source": "plugins/flx-speed/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flx-speed"
+      ],
+      "sources": [
+        "summary"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-speed",
+      "module": "speed",
+      "screen": "slow",
+      "type": "list",
+      "source": "plugins/flx-speed/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [
+        "slow"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-speed",
+      "module": "speed",
+      "screen": "request",
+      "type": "detail",
+      "source": "plugins/flx-speed/app/manifest.json",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [
+        "request"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-certificates",
+      "module": "flxs",
+      "screen": "overview",
+      "type": "dashboard",
+      "source": "plugins/flx-certificates/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flxs-dashboard"
+      ],
+      "sources": [
+        "overview"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-certificates",
+      "module": "flxs",
+      "screen": "certificates",
+      "type": "list",
+      "source": "plugins/flx-certificates/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flxs"
+      ],
+      "sources": [
+        "certificates"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-certificates",
+      "module": "flxs",
+      "screen": "certificate",
+      "type": "detail",
+      "source": "plugins/flx-certificates/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [
+        "certificate"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-certificates",
+      "module": "flxs",
+      "screen": "people",
+      "type": "list",
+      "source": "plugins/flx-certificates/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flxs-kisiler"
+      ],
+      "sources": [
+        "people"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-certificates",
+      "module": "flxs",
+      "screen": "queue",
+      "type": "list",
+      "source": "plugins/flx-certificates/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flxs-kuyruk"
+      ],
+      "sources": [
+        "messages"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-certificates",
+      "module": "flxs",
+      "screen": "templates",
+      "type": "web",
+      "source": "plugins/flx-certificates/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": "admin.php?page=flxs-sablonlar",
+      "routes": [
+        "admin.php?page=flxs-sablonlar"
+      ],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-certificates",
+      "module": "flxs",
+      "screen": "create",
+      "type": "web",
+      "source": "plugins/flx-certificates/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": "admin.php?page=flxs-yeni",
+      "routes": [
+        "admin.php?page=flxs-yeni"
+      ],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-commerce",
+      "module": "flxcm",
+      "screen": "overview",
+      "type": "dashboard",
+      "source": "plugins/flx-commerce/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flx-commerce"
+      ],
+      "sources": [
+        "summary"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-commerce",
+      "module": "flxcm",
+      "screen": "customers",
+      "type": "list",
+      "source": "plugins/flx-commerce/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flx-commerce-customers"
+      ],
+      "sources": [
+        "customers"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-commerce",
+      "module": "flxcm",
+      "screen": "customer",
+      "type": "detail",
+      "source": "plugins/flx-commerce/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [
+        "customer"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-commerce",
+      "module": "flxcm",
+      "screen": "receipts",
+      "type": "list",
+      "source": "plugins/flx-commerce/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [
+        "receipts"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-commerce",
+      "module": "flxcm",
+      "screen": "receipt",
+      "type": "detail",
+      "source": "plugins/flx-commerce/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [
+        "receipt"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-commerce",
+      "module": "flxcm",
+      "screen": "settings",
+      "type": "web",
+      "source": "plugins/flx-commerce/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": "admin.php?page=flx-commerce-settings",
+      "routes": [
+        "admin.php?page=flx-commerce-settings"
+      ],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-crm",
+      "module": "crm",
+      "screen": "overview",
+      "type": "dashboard",
+      "source": "plugins/flx-crm/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flx-crm"
+      ],
+      "sources": [
+        "stats"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-crm",
+      "module": "crm",
+      "screen": "contacts",
+      "type": "list",
+      "source": "plugins/flx-crm/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flx-crm-contacts"
+      ],
+      "sources": [
+        "contacts"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-crm",
+      "module": "crm",
+      "screen": "contact",
+      "type": "detail",
+      "source": "plugins/flx-crm/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flx-crm-contacts&id={id}"
+      ],
+      "sources": [
+        "contact"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-crm",
+      "module": "crm",
+      "screen": "contact_form",
+      "type": "form",
+      "source": "plugins/flx-crm/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-crm",
+      "module": "crm",
+      "screen": "segments",
+      "type": "list",
+      "source": "plugins/flx-crm/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flx-crm-segments"
+      ],
+      "sources": [
+        "segments"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-crm",
+      "module": "crm",
+      "screen": "segment",
+      "type": "list",
+      "source": "plugins/flx-crm/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [
+        "segment_contacts"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-crm",
+      "module": "crm",
+      "screen": "segment_rules",
+      "type": "web",
+      "source": "plugins/flx-crm/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": "admin.php?page=flx-crm-segments",
+      "routes": [],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-donate",
+      "module": "flxb-donations",
+      "screen": "overview",
+      "type": "dashboard",
+      "source": "plugins/flx-donate/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [
+        "me"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-donate",
+      "module": "flxb-donations",
+      "screen": "donations",
+      "type": "list",
+      "source": "plugins/flx-donate/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [
+        "donations"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-donate",
+      "module": "flxb-donations",
+      "screen": "donation",
+      "type": "detail",
+      "source": "plugins/flx-donate/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [
+        "donation"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-donate",
+      "module": "flxb-donations",
+      "screen": "certificates",
+      "type": "list",
+      "source": "plugins/flx-donate/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [
+        "certificates"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-donate",
+      "module": "flxb",
+      "screen": "overview",
+      "type": "dashboard",
+      "source": "plugins/flx-donate/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flxb-dashboard"
+      ],
+      "sources": [
+        "summary"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-donate",
+      "module": "flxb",
+      "screen": "review",
+      "type": "native",
+      "source": "plugins/flx-donate/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": "flxb-review",
+      "componentRegistered": true,
+      "path": null,
+      "routes": [],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-donate",
+      "module": "flxb",
+      "screen": "donations",
+      "type": "list",
+      "source": "plugins/flx-donate/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flxb-donations"
+      ],
+      "sources": [
+        "donations"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-donate",
+      "module": "flxb",
+      "screen": "donation",
+      "type": "detail",
+      "source": "plugins/flx-donate/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [
+        "donation"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-donate",
+      "module": "flxb",
+      "screen": "donors",
+      "type": "list",
+      "source": "plugins/flx-donate/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flxb-donors"
+      ],
+      "sources": [
+        "donors"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-donate",
+      "module": "flxb",
+      "screen": "donor",
+      "type": "detail",
+      "source": "plugins/flx-donate/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [
+        "donor"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-donate",
+      "module": "flxb",
+      "screen": "subscriptions",
+      "type": "list",
+      "source": "plugins/flx-donate/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flxb-subscriptions"
+      ],
+      "sources": [
+        "subscriptions"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-donate",
+      "module": "flxb",
+      "screen": "types",
+      "type": "web",
+      "source": "plugins/flx-donate/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": "admin.php?page=flxb-types",
+      "routes": [
+        "admin.php?page=flxb-types"
+      ],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-donate",
+      "module": "flxb",
+      "screen": "settings",
+      "type": "web",
+      "source": "plugins/flx-donate/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": "admin.php?page=flxb-settings",
+      "routes": [
+        "admin.php?page=flxb-settings"
+      ],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-mail",
+      "module": "flxi",
+      "screen": "inbox",
+      "type": "list",
+      "source": "plugins/flx-mail/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flxi-posta"
+      ],
+      "sources": [
+        "inbox"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-mail",
+      "module": "flxi",
+      "screen": "message",
+      "type": "content",
+      "source": "plugins/flx-mail/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": "html",
+      "routes": [],
+      "sources": [
+        "message"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-mail",
+      "module": "flxi",
+      "screen": "reply",
+      "type": "form",
+      "source": "plugins/flx-mail/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-mail",
+      "module": "flxi",
+      "screen": "log",
+      "type": "list",
+      "source": "plugins/flx-mail/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "admin.php?page=flxi-kayitlar"
+      ],
+      "sources": [
+        "log"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-mail",
+      "module": "flxi",
+      "screen": "log_item",
+      "type": "content",
+      "source": "plugins/flx-mail/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": "body",
+      "routes": [],
+      "sources": [
+        "log_item"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-mail",
+      "module": "flxi",
+      "screen": "templates",
+      "type": "web",
+      "source": "plugins/flx-mail/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": "admin.php?page=flxi",
+      "routes": [
+        "admin.php?page=flxi"
+      ],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "flx-mail",
+      "module": "flxi",
+      "screen": "connections",
+      "type": "web",
+      "source": "plugins/flx-mail/includes/app-manifest.php",
+      "minimumApp": "1.0.0",
+      "versionGated": true,
+      "component": null,
+      "componentRegistered": null,
+      "path": "admin.php?page=flxi-baglantilar",
+      "routes": [
+        "admin.php?page=flxi-baglantilar"
+      ],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "wordpress",
+      "module": "core",
+      "screen": "dashboard",
+      "type": "native",
+      "source": "packages/manifest/src/core-manifest.ts",
+      "versionGated": false,
+      "component": "dashboard",
+      "componentRegistered": true,
+      "path": null,
+      "routes": [],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "wordpress",
+      "module": "core",
+      "screen": "posts",
+      "type": "list",
+      "source": "packages/manifest/src/core-manifest.ts",
+      "versionGated": false,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "edit.php"
+      ],
+      "sources": [
+        "posts"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "wordpress",
+      "module": "core",
+      "screen": "post",
+      "type": "detail",
+      "source": "packages/manifest/src/core-manifest.ts",
+      "versionGated": false,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "post.php?post={id}&action=edit"
+      ],
+      "sources": [
+        "post"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "wordpress",
+      "module": "core",
+      "screen": "post_form",
+      "type": "form",
+      "source": "packages/manifest/src/core-manifest.ts",
+      "versionGated": false,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [],
+      "sources": [],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "wordpress",
+      "module": "core",
+      "screen": "pages",
+      "type": "list",
+      "source": "packages/manifest/src/core-manifest.ts",
+      "versionGated": false,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "edit.php?post_type=page"
+      ],
+      "sources": [
+        "pages"
+      ],
+      "runtimeVerified": false
+    },
+    {
+      "plugin": "wordpress",
+      "module": "core",
+      "screen": "comments",
+      "type": "list",
+      "source": "packages/manifest/src/core-manifest.ts",
+      "versionGated": false,
+      "component": null,
+      "componentRegistered": null,
+      "path": null,
+      "routes": [
+        "edit-comments.php"
+      ],
+      "sources": [
+        "comments"
+      ],
+      "runtimeVerified": false
+    }
+  ],
+  "webActions": [
+    {
+      "module": "recaptcha",
+      "action": "open_forms",
+      "web": "admin.php?page=flx-recaptcha",
+      "source": "plugins/flx-recaptcha/app/manifest.json"
+    },
+    {
+      "module": "backup",
+      "action": "restore_web",
+      "web": "admin.php?page=flx-backup",
+      "source": "plugins/flx-backup/app/manifest.json"
+    },
+    {
+      "module": "analytics",
+      "action": "open_panel",
+      "web": "admin.php?page=flx-analytics",
+      "source": "plugins/flx-analytics/app/manifest.json"
+    },
+    {
+      "module": "seo",
+      "action": "open_audit",
+      "web": "admin.php?page=flxseo&tab=denetim",
+      "source": "plugins/flx-seo/app/manifest.json"
+    },
+    {
+      "module": "social",
+      "action": "open_panel",
+      "web": "admin.php?page=flx-social",
+      "source": "plugins/flx-social/app/manifest.json"
+    },
+    {
+      "module": "wiki",
+      "action": "page_web",
+      "web": "post.php?post={{id}}&action=edit",
+      "source": "plugins/flx-wiki/app/manifest.json"
+    },
+    {
+      "module": "studio",
+      "action": "open_panel",
+      "web": "admin.php?page=flx-studio",
+      "source": "plugins/flx-studio/app/manifest.json"
+    },
+    {
+      "module": "speed",
+      "action": "open_panel",
+      "web": "admin.php?page=flx-speed",
+      "source": "plugins/flx-speed/app/manifest.json"
+    },
+    {
+      "module": "flxs",
+      "action": "open_create",
+      "web": "admin.php?page=flxs-yeni",
+      "source": "plugins/flx-certificates/includes/app-manifest.php"
+    },
+    {
+      "module": "flxs",
+      "action": "open_templates",
+      "web": "admin.php?page=flxs-sablonlar",
+      "source": "plugins/flx-certificates/includes/app-manifest.php"
+    },
+    {
+      "module": "flxcm",
+      "action": "open_settings",
+      "web": "admin.php?page=flx-commerce-settings",
+      "source": "plugins/flx-commerce/includes/app-manifest.php"
+    },
+    {
+      "module": "crm",
+      "action": "web",
+      "web": "admin.php?page=flx-crm-contacts&id={{data.id}}",
+      "source": "plugins/flx-crm/includes/app-manifest.php"
+    },
+    {
+      "module": "crm",
+      "action": "segment_edit_web",
+      "web": "admin.php?page=flx-crm-segments",
+      "source": "plugins/flx-crm/includes/app-manifest.php"
+    },
+    {
+      "module": "flxb",
+      "action": "open_types",
+      "web": "admin.php?page=flxb-types",
+      "source": "plugins/flx-donate/includes/app-manifest.php"
+    },
+    {
+      "module": "flxb",
+      "action": "open_settings",
+      "web": "admin.php?page=flxb-settings",
+      "source": "plugins/flx-donate/includes/app-manifest.php"
+    },
+    {
+      "module": "flxi",
+      "action": "open_templates",
+      "web": "admin.php?page=flxi",
+      "source": "plugins/flx-mail/includes/app-manifest.php"
+    },
+    {
+      "module": "flxi",
+      "action": "open_connections",
+      "web": "admin.php?page=flxi-baglantilar",
+      "source": "plugins/flx-mail/includes/app-manifest.php"
+    },
+    {
+      "module": "core",
+      "action": "web_post",
+      "web": "post.php?post={{data.id}}&action=edit",
+      "source": "packages/manifest/src/core-manifest.ts"
+    }
+  ]
+}

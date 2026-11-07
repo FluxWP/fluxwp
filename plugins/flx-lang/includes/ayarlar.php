@@ -38,67 +38,8 @@ add_action(
 			wp_die( esc_html__( 'Bu işlem için yetkiniz yok.', 'flx-lang' ) );
 		}
 		check_admin_referer( 'flxl_save' );
-		$in  = wp_unslash( $_POST ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- alan alan temizleniyor.
-		$old = flxl_settings();
-		$s   = $old;
-		$cat = flxl_catalog();
-
-		$langs = array();
-		foreach ( (array) ( $in['langs'] ?? array() ) as $code => $l ) {
-			$code = sanitize_key( $code );
-			if ( ! preg_match( '/^[a-z]{2,3}$/', $code ) || ! empty( $l['remove'] ) ) {
-				continue;
-			}
-			$langs[ $code ] = array(
-				'name'   => sanitize_text_field( $l['name'] ?? $code ),
-				'locale' => preg_replace( '/[^A-Za-z_]/', '', (string) ( $l['locale'] ?? '' ) ),
-				'flag'   => sanitize_text_field( $l['flag'] ?? '' ),
-				'active' => empty( $l['active'] ) ? 0 : 1,
-			);
-		}
-		$add = sanitize_key( $in['add_lang'] ?? '' );
-		if ( $add && isset( $cat[ $add ] ) && ! isset( $langs[ $add ] ) ) {
-			$langs[ $add ] = $cat[ $add ] + array( 'active' => 0 ); // Pasif eklenir: önce içerik hazırlanır.
-		}
-		$def = sanitize_key( $in['default'] ?? $old['default'] );
-		if ( ! isset( $langs[ $def ] ) ) {
-			$def = isset( $langs[ $old['default'] ] ) ? $old['default'] : (string) key( $langs );
-		}
-		if ( isset( $langs[ $def ] ) ) {
-			$langs[ $def ]['active'] = 1;
-		}
-		$s['languages'] = $langs ? $langs : $old['languages'];
-		$s['default']   = $def;
-
-		$s['post_types'] = array_values( array_filter( array_map( 'sanitize_key', (array) ( $in['post_types'] ?? array() ) ), 'post_type_exists' ) );
-		$s['fallback']   = empty( $in['fallback'] ) ? 0 : 1;
-		$s['suggest']    = in_array( $in['suggest'] ?? '', array( 'off', 'banner', 'redirect' ), true ) ? $in['suggest'] : 'redirect';
-		$s['suggest_to'] = isset( $s['languages'][ sanitize_key( $in['suggest_to'] ?? '' ) ] ) ? sanitize_key( $in['suggest_to'] ) : 'en';
-		$s['switcher']   = in_array( $in['switcher'] ?? '', array( 'code', 'name', 'flag' ), true ) ? $in['switcher'] : 'code';
-		$s['switcher_place'] = in_array( $in['switcher_place'] ?? '', array( 'footer', 'header', 'both' ), true ) ? $in['switcher_place'] : 'footer';
-		$countries       = preg_split( '/[\s,;]+/', strtoupper( (string) ( $in['home_countries'] ?? '' ) ), -1, PREG_SPLIT_NO_EMPTY );
-		$s['home_countries'] = array_values( array_unique( array_filter( $countries, function ( $c ) {
-			return (bool) preg_match( '/^[A-Z]{2}$/', $c );
-		} ) ) );
-
-		$fields = flxl_text_fields();
-		$texts  = array();
-		foreach ( (array) ( $in['texts'] ?? array() ) as $code => $vals ) {
-			$code = sanitize_key( $code );
-			if ( ! isset( $s['languages'][ $code ] ) || $code === $def ) {
-				continue;
-			}
-			foreach ( (array) $vals as $k => $v ) {
-				if ( isset( $fields[ $k ] ) && '' !== trim( (string) $v ) ) {
-					$texts[ $code ][ $k ] = empty( $fields[ $k ]['textarea'] ) ? sanitize_text_field( $v ) : sanitize_textarea_field( $v );
-				}
-			}
-		}
-		$s['texts'] = $texts;
-
-		update_option( 'flxl_settings', $s, true );
-		flxl_ensure_terms();
-		flxl_index_flush();
+		$result = flxl_save_settings( wp_unslash( $_POST ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- shared field-by-field validation.
+		if ( is_wp_error( $result ) ) { wp_die( esc_html( $result->get_error_message() ), '', array( 'response' => 400 ) ); }
 		wp_safe_redirect( admin_url( 'options-general.php?page=flx-lang&saved=1' ) );
 		exit;
 	}

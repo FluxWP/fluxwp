@@ -27,7 +27,16 @@ h2{font-size:var(--flux-font-md);margin:0 0 var(--flux-space-3);font-weight:600;
 .text-warn{color:var(--flux-warning)}
 kbd{font-family:var(--flux-font-mono);font-size:11px;padding:1px 6px;border-radius:5px;border:1px solid var(--flux-border);color:var(--flux-text-muted);background:var(--flux-surface)}
 
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+
 /* buttons */
+.flux-pane{position:relative;flex-grow:0;flex-shrink:0;min-width:0}
+.flux-pane-handle{position:absolute;top:0;bottom:0;width:8px;z-index:12;cursor:col-resize;touch-action:none;outline:none}
+.flux-pane-handle.edge-right{right:-4px}.flux-pane-handle.edge-left{left:-4px}
+.flux-pane-handle::after{content:"";position:absolute;top:0;bottom:0;left:3px;width:2px;background:transparent}
+.flux-pane-handle:hover::after,.flux-pane-handle:focus-visible::after,.is-resizing>.flux-pane-handle::after{background:var(--flux-primary)}
+.flux-pane-handle:focus-visible{box-shadow:0 0 0 2px var(--flux-primary)}
+@media(max-width:899px){.wa-info.flux-pane{width:100%!important;flex-basis:auto!important}.wa-info.flux-pane>.flux-pane-handle,.wa-list.flux-pane>.flux-pane-handle{display:none}}
 .btn-primary,.btn-ghost{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 14px;border-radius:var(--flux-radius-md);font-weight:600;transition:background .15s,opacity .15s}
 .btn-primary{background:var(--flux-primary);color:var(--flux-primary-contrast);font-weight:700}
 .btn-primary:hover:not(:disabled){filter:brightness(1.07)}

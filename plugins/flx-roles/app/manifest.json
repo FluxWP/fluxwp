@@ -6,16 +6,23 @@
   "icon": "users",
   "menu": "users.php?page=flx-roles",
   "entry": "matrix",
-  "fallback": { "web": "users.php?page=flx-roles" },
+  "fallback": {
+    "web": "users.php?page=flx-roles"
+  },
   "routes": {
-    "users.php?page=flx-roles": { "screen": "matrix" }
+    "users.php?page=flx-roles": {
+      "screen": "matrix"
+    }
   },
   "sources": {},
   "screens": {
     "matrix": {
-      "type": "web",
+      "type": "native",
       "title": "Roller ve erişim",
-      "path": "users.php?page=flx-roles"
+      "component": "flxr-roles",
+      "fallback": {
+        "web": "users.php?page=flx-roles"
+      }
     }
   },
   "actions": {}

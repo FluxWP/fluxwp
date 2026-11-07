@@ -3,7 +3,6 @@
 html:not([data-theme=dark]) .brand-img-dark,html[data-theme=dark] .brand-img-light{display:none!important}
 /* native his (yalnız uygulama): belge kaymaz, lastik efekti yok; yalnız iç paneller kayar */
 html,body,#root{overflow:hidden;overscroll-behavior:none}
-#root *{overscroll-behavior:contain}
 
 /* auth */
 .auth{height:100%;overflow:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 16px;background:radial-gradient(1200px 500px at 50% -10%,color-mix(in srgb,var(--flux-primary) 14%,transparent),transparent 70%),var(--flux-bg)}
@@ -23,7 +22,7 @@ html,body,#root{overflow:hidden;overscroll-behavior:none}
 .shell{display:flex;height:100%;overflow:hidden}
 .sidebar{position:relative;flex:none;overflow:hidden;background:var(--flux-sidebar);border-right:1px solid var(--flux-border);color:var(--flux-sidebar-text);transition:width .2s cubic-bezier(.2,.8,.2,1)}
 .sidebar.resizing{transition:none;user-select:none}
-.sidebar.collapsed{border-right-width:0}
+.sidebar.collapsed{border-right-width:1px}
 .sidebar-in{height:100%;display:flex;flex-direction:column;position:relative}
 .sidebar-resizer{position:absolute;top:0;right:0;bottom:0;width:6px;cursor:col-resize;z-index:5;touch-action:none}
 .sidebar-resizer::after{content:"";position:absolute;top:0;bottom:0;right:0;width:1px;background:transparent;transition:background .15s}
@@ -171,3 +170,40 @@ html.flux-resizing,html.flux-resizing *{cursor:col-resize!important;user-select:
 .nav-item.active .menu-ic.img{box-shadow:none}
 
 .legal-links { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 16px; }
+
+/* Compact navigation remains reachable instead of disappearing. */
+.sidebar.collapsed .sidebar-top{padding:12px 8px 8px;align-items:center}
+.sidebar.collapsed .brand-logo{padding:4px;justify-content:center}
+.sidebar.collapsed .brand-logo img{width:36px;height:36px;border-radius:9px}
+.sidebar.collapsed .sidebar-top .fx-row{flex-direction:column;align-items:center;gap:6px}
+.sidebar.collapsed .search-btn{width:40px;height:36px;padding:0;justify-content:center;flex:none}
+.sidebar.collapsed .search-btn span,.sidebar.collapsed .search-btn kbd{display:none}
+.sidebar.collapsed .sidebar-foot{padding:6px}
+.sidebar.collapsed .account-card{padding:6px;justify-content:center}
+.sidebar.collapsed .account-card>.account-text,.sidebar.collapsed .account-card>svg{display:none}
+.sidebar.collapsed .account .menu-pop.up{position:fixed;left:80px;right:auto;bottom:8px;width:min(300px,calc(100vw - 96px));max-height:calc(100dvh - 16px);overflow:auto}
+.sidebar.collapsed .update-banner{padding:6px;justify-content:center}
+.sidebar.collapsed .update-banner>span:not(.update-ic):not(.update-bar){display:none}
+.sidebar-rail{min-height:0;padding:4px 8px 12px;gap:10px}
+.sidebar-rail>section{display:flex;flex-direction:column;gap:4px;flex:none}
+.sidebar-rail>section+section{border-top:1px solid var(--flux-border);padding-top:10px}
+.sidebar-rail-item{position:relative;display:flex;align-items:center;justify-content:center;width:46px;min-height:44px;flex:none;border-radius:12px;align-self:center}
+.sidebar-rail-item:hover,.sidebar-rail-item.active,.sidebar-rail-item[aria-expanded=true]{background:var(--flux-sidebar-active);color:var(--flux-primary)}
+.sidebar-rail-item .badge{position:absolute;right:-1px;top:0;min-width:16px;height:16px;padding:0 4px;font-size:10px;line-height:16px;pointer-events:none}
+.sidebar-rail-popup{position:fixed;z-index:1000;display:flex;flex-direction:column;box-sizing:border-box;border:1px solid var(--flux-border);border-radius:14px;background:var(--flux-surface);color:var(--flux-text);box-shadow:0 12px 40px #0002;overflow:hidden}
+.sidebar-rail-popup header{padding:12px 14px 8px;font-size:var(--flux-font-sm);font-weight:600;flex:none}
+.sidebar-rail-popup>div{overflow:auto;min-height:0;padding:0 6px 6px;overscroll-behavior:contain}
+.sidebar-rail-popup button{width:100%;min-height:38px;text-align:left;padding:8px 10px;border-radius:8px}
+.sidebar-rail-popup button:hover,.sidebar-rail-popup button[aria-current=page]{background:var(--flux-sidebar-active)}
+.sidebar-rail-popup button:focus-visible,.sidebar-rail-item:focus-visible{outline:2px solid var(--flux-primary);outline-offset:-2px}
+html.platform-desktop.os-macos .sidebar.collapsed .sidebar-top{padding-top:48px}
+html.platform-desktop.os-macos .main.with-bar .main-bar{padding-left:10px}
+
+/* Preserve group titles inside the compact menu, too. */
+.sidebar-rail-heading{margin:0;padding:3px 0 5px;max-width:100%;font-size:9px;line-height:1.25;font-weight:600;letter-spacing:.03em;text-transform:uppercase;text-align:center;overflow-wrap:anywhere;color:var(--flux-text-muted)}
+/* Subtle scrollbars; nested horizontal regions still pass vertical scrolling to their parent. */
+#root *{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--flux-text-muted) 28%,transparent) transparent}
+#root *::-webkit-scrollbar{width:5px;height:5px}
+#root *::-webkit-scrollbar-track{background:transparent}
+#root *::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--flux-text-muted) 28%,transparent);border-radius:99px}
+#root *::-webkit-scrollbar-thumb:hover{background:color-mix(in srgb,var(--flux-text-muted) 50%,transparent)}

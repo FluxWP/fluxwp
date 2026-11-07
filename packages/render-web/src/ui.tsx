@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { create } from 'zustand';
 import type { FormField } from '@fluxwp/manifest';
 import type { ConfirmRequest, RendererUI } from '@fluxwp/runtime';
+import { Select } from '@fluxwp/ui';
 
 interface ConfirmState extends ConfirmRequest {
   resolve: (ok: boolean) => void;
@@ -86,12 +87,12 @@ function FieldInputs({ fields, onChange }: { fields: FormField[]; onChange: (v: 
           ) : f.type === 'switch' ? (
             <input type="checkbox" checked={!!values[f.name]} onChange={(e) => setValues((v) => ({ ...v, [f.name]: e.target.checked }))} />
           ) : f.type === 'select' && Array.isArray(f.options) ? (
-            <select value={String(values[f.name] ?? '')} onChange={(e) => setValues((v) => ({ ...v, [f.name]: e.target.value }))}>
+            <Select value={String(values[f.name] ?? '')} onChange={(e) => setValues((v) => ({ ...v, [f.name]: e.target.value }))}>
               <option value="" />
               {f.options.map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
               ))}
-            </select>
+            </Select>
           ) : (
             <input value={String(values[f.name] ?? '')} onChange={(e) => setValues((v) => ({ ...v, [f.name]: e.target.value }))} />
           )}

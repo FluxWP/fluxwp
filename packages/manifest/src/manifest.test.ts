@@ -70,7 +70,7 @@ describe('schemas', () => {
   it('accepts the fixtures and the built-in core manifest', () => {
     const issues: ParseIssue[] = [];
     expect(parseConfig(config, issues)).not.toBeNull();
-    expect(Object.keys(parseManifestBundle(bundle, issues).modules)).toEqual(['crm']);
+    expect(Object.keys(parseManifestBundle(bundle, issues).modules)).toEqual(['crm', 'ai']);
     expect(parseManifest(CORE_MANIFEST, issues)).not.toBeNull();
     expect(parseBootstrap(bootstrap)).not.toBeNull();
     expect(issues).toEqual([]);

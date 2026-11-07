@@ -5,6 +5,7 @@ import { Mic, Square, Trash2 } from 'lucide-react';
 import { Modal } from '@fluxwp/ui';
 import type { WaEngine } from './engine';
 import { duration } from './format';
+import { Select } from '@fluxwp/ui';
 
 /* ---------- yeni sohbet ---------- */
 
@@ -63,9 +64,9 @@ export function NewChat({ engine, onClose, onOpen }: { engine: WaEngine; onClose
         {conns.length > 1 && (
           <label className="field">
             {t('wa.new.line')}
-            <select className="wa-select" value={conn} onChange={(e) => setConn(e.target.value)}>
+            <Select className="wa-select" value={conn} onChange={(e) => setConn(e.target.value)}>
               {conns.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
-            </select>
+            </Select>
           </label>
         )}
         {err && <p className="error">{err}</p>}

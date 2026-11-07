@@ -6,7 +6,7 @@ import {
   ArrowDown, Bot, Check, CheckCheck, Info, Lock, LockOpen, MessageCircle, MessageSquarePlus, Mic, Pin, Search, StickyNote, UserCheck, WifiOff,
 } from 'lucide-react';
 import type { FlxcChat, FlxcFilter, FlxcMessage } from '@fluxwp/core';
-import { Avatar, Empty, Loading } from '@fluxwp/ui';
+import { Avatar, Empty, Loading, ResizablePane } from '@fluxwp/ui';
 import { useHost } from '../host';
 import { WaEngine, type WaState } from './engine';
 import { Bubble, type BubbleActions } from './Bubble';
@@ -15,6 +15,7 @@ import { dayLabel, listTime, sameDay } from './format';
 import { InfoPanel } from './InfoPanel';
 import { NewChat } from './extras';
 import { notifyIncoming } from './notify';
+import { Select } from '@fluxwp/ui';
 
 const FILTERS: FlxcFilter[] = ['all', 'unread', 'mine', 'unassigned', 'closed'];
 
@@ -79,6 +80,7 @@ function ChatList({ engine, offline }: { engine: WaEngine; offline: WaState['off
   const more = useWa(engine, (s) => s.listMore);
   const boot = useWa(engine, (s) => s.boot);
   const conns = useWa(engine, (s) => s.conns);
+  const host = useHost();
   const [q, setQ] = useState('');
   const [adding, setAdding] = useState(false);
 
@@ -90,7 +92,7 @@ function ChatList({ engine, offline }: { engine: WaEngine; offline: WaState['off
   const down = conns.filter((c) => c.state && c.state !== 'open');
 
   return (
-    <section className="split-list wa-list">
+    <ResizablePane className="split-list wa-list" storageKey={`flux.pane.${host.scope}.wa-list`} initialWidth={340} minWidth={260} maxWidth={560} minContentWidth={360} label={t('pane.list')}>
       <header className="split-head column">
         <div className="row wa-list-title">
           <h1 className="grow">{t('inbox.title')}</h1>
@@ -131,7 +133,7 @@ function ChatList({ engine, offline }: { engine: WaEngine; offline: WaState['off
         {loading && <Loading />}
         {!loading && order.length === 0 && <Empty icon={<MessageCircle size={28} />} title={t('inbox.empty')} />}
       </div>
-    </section>
+    </ResizablePane>
   );
 }
 
@@ -313,7 +315,7 @@ function Conversation({ engine, id, toast }: { engine: WaEngine; id: number; toa
             <Bot size={14} /> <span className="lbl">{t(`wa.bot.${c.bot}`)}</span>
           </button>
         )}
-        <select
+        <Select
           className="wa-assign"
           value={c.assigned}
           onChange={(e) => void engine.update(c.id, { assigned: Number(e.target.value) }).catch((x: Error) => toast(x.message))}
@@ -321,7 +323,7 @@ function Conversation({ engine, id, toast }: { engine: WaEngine; id: number; toa
         >
           <option value={0}>{t('wa.unassigned')}</option>
           {boot?.agents.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
-        </select>
+        </Select>
         <button
           type="button"
           className="icon-btn"

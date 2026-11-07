@@ -2,7 +2,7 @@
 // fixtures already live in @fluxwp/core's demo transport.
 import type { AiChat } from './ai';
 import type { WpMedia } from './media';
-import type { SocialAccount } from './social';
+import { socialDemoRoutes } from '../demo/social';
 import type { StudioItem } from './studio';
 import type { TvState } from './tv';
 
@@ -23,12 +23,6 @@ const media: WpMedia[] = [
   { id: 14, source_url: svg('#d97706', 'Dekont'), alt_text: 'Bağış dekontu', mime_type: 'image/svg+xml', title: { rendered: 'Dekont' } },
   { id: 15, source_url: svg('#0f766e', 'Orman'), alt_text: 'Hatıra ormanı', mime_type: 'image/svg+xml', title: { rendered: 'Orman' } },
   { id: 16, source_url: svg('#7c3aed', 'Gönüllü'), alt_text: 'Gönüllü ekibi', mime_type: 'image/svg+xml', title: { rendered: 'Gönüllü' } },
-];
-
-const accounts: SocialAccount[] = [
-  { id: 1, name: 'Örnek Site', provider: 'instagram', color: '#E1306C' },
-  { id: 2, name: 'Örnek Site', provider: 'facebook', color: '#1877F2' },
-  { id: 3, name: '@ornekvakfi', provider: 'x', color: '#111111' },
 ];
 
 const gallery: StudioItem[] = [
@@ -74,6 +68,7 @@ const page = <T>(all: T[], q: Q) => {
 };
 
 export const moduleDemoRoutes: [string, RegExp, Handler][] = [
+  ...socialDemoRoutes(),
   ['GET', /^wp\/v2\/media$/, (_m, q) => page(media, q)],
   ['POST', /^wp\/v2\/media$/, (_m, _q, b) => {
     const item: WpMedia = {
@@ -91,22 +86,6 @@ export const moduleDemoRoutes: [string, RegExp, Handler][] = [
     if (item && typeof b.alt_text === 'string') item.alt_text = b.alt_text;
     return item ?? null;
   }],
-  ['GET', /^flx-social\/v1\/boot$/, () => ({
-    user: { id: 1, name: 'Demo Kullanıcı', publish: true, manage: true, upload: true },
-    providers: { instagram: { id: 'instagram', label: 'Instagram', color: '#E1306C' }, facebook: { id: 'facebook', label: 'Facebook', color: '#1877F2' }, x: { id: 'x', label: 'X', color: '#111111' } },
-    accounts,
-    ai: false,
-    settings: { approval: 0, signature: '' },
-  })],
-  ['GET', /^flx-social\/v1\/posts$/, () => ({ items: [], total: 0, page: 1, pages: 1 })],
-  ['POST', /^flx-social\/v1\/posts$/, (_m, _q, b) => ({
-    id: ++seq,
-    status: b.scheduled_at ? 'scheduled' : 'publishing',
-    title: b.title ?? '',
-    content: b.content ?? '',
-    media: [],
-    targets: Array.isArray(b.targets) ? b.targets : [],
-  })],
   ['GET', /^flx-studio\/v1\/boot$/, () => ({
     user: { id: 1, name: 'Demo Kullanıcı', manage: true },
     ai: { media: true, text: true },

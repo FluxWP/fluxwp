@@ -32,6 +32,7 @@ require_once FLXR_DIR . 'includes/access.php';
 require_once FLXR_DIR . 'includes/phone.php';
 require_once FLXR_DIR . 'includes/system-checks.php';
 require_once FLXR_DIR . 'includes/app.php';
+require_once FLXR_DIR . 'includes/rest.php';
 if ( is_admin() ) {
 	require_once FLXR_DIR . 'includes/admin.php';
 }

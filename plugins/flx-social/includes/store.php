@@ -152,7 +152,7 @@ function flxsm_update_target( $id, array $patch ) {
 
 /** Hedefin gerçekte gönderilecek metni ve medyası (hesaba özel sürüm yoksa ortak). */
 function flxsm_target_payload( array $target, array $post ) {
-	$text  = null !== $target['content'] && '' !== $target['content'] ? (string) $target['content'] : (string) $post['content'];
+	$text  = null !== $target['content'] ? (string) $target['content'] : (string) $post['content'];
 	$media = null !== $target['media'] && '' !== $target['media'] ? flxsm_dec( $target['media'] ) : flxsm_dec( $post['media'] );
 	return array(
 		'text'    => $text,
@@ -231,6 +231,9 @@ function flxsm_post_public( array $p, $full = true ) {
  */
 function flxsm_save_post( array $d, $id = 0 ) {
 	global $wpdb;
+	if ( 'approve' === ( $d['action'] ?? '' ) && ! flxsm_can_publish() && empty( $d['_system'] ) ) {
+		return new WP_Error( 'rest_forbidden', __( 'Bu işlem için yetkiniz yok.', 'flx-social' ), array( 'status' => 403 ) );
+	}
 	$now   = time();
 	$table = flxsm_table( 'posts' );
 	$old   = $id ? flxsm_post_row( $id ) : null;
@@ -363,6 +366,9 @@ function flxsm_apply_action( $post_id, $action, array $d = array() ) {
 		return new WP_Error( 'flxsm_no_target', __( 'En az bir hesap seçin.', 'flx-social' ), array( 'status' => 400 ) );
 	}
 	$can_publish = flxsm_can_publish() || ! empty( $d['_system'] );
+	if ( 'approve' === $action && ! $can_publish ) {
+		return new WP_Error( 'rest_forbidden', __( 'Bu işlem için yetkiniz yok.', 'flx-social' ), array( 'status' => 403 ) );
+	}
 	if ( in_array( $action, array( 'schedule', 'now' ), true ) && ! $can_publish ) {
 		$action = 'submit'; // yetkisi yoksa onaya düşer
 	}

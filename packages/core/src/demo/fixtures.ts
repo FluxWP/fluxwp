@@ -72,6 +72,8 @@ export const demoMe: Me = {
     { id: 'options-general.php', slug: 'options-general.php', title: 'Ayarlar', url: A + 'options-general.php', icon: 'dashicons-admin-settings', items: [] },
   ],
   modules: {
+    'flxr-roles': { title: 'Roller ve erişim', icon: 'users', order: 70 },
+    'flxl-languages': { title: 'Diller', icon: 'globe', order: 71 },
     'flxc-inbox': { title: 'WhatsApp', menu: 'flx-chat', icon: 'chat', order: 20 },
     'flxg-tasks': { title: 'Görevler', menu: 'flx-tasks', icon: 'task', order: 30 },
     'flxb-review': { title: 'Onay bekleyenler', icon: 'check', order: 10 },

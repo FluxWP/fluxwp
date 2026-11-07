@@ -842,6 +842,80 @@
           "open": "mailto:{{email}}"
         }
       }
+    },
+    "ai": {
+      "id": "ai",
+      "plugin": "flx-ai",
+      "min_app": "1.0.0",
+      "title": "Flux AI",
+      "icon": "chat",
+      "menu": "flx-ai",
+      "fallback": {
+        "web": "admin.php?page=flx-ai-settings"
+      },
+      "entry": "chat",
+      "sources": {},
+      "screens": {
+        "chat": {
+          "type": "native",
+          "title": "Sohbet",
+          "component": "flxai-chat",
+          "fallback": {
+            "web": "admin.php?page=flx-ai"
+          }
+        },
+        "billing": {
+          "type": "native",
+          "title": "Faturalandırma",
+          "component": "flxai-billing",
+          "fallback": {
+            "web": "admin.php?page=flx-ai-billing"
+          }
+        },
+        "tools": {
+          "type": "native",
+          "title": "$t:aiTools.title",
+          "component": "flxai-tools",
+          "fallback": {
+            "web": "admin.php?page=flx-ai-tools"
+          }
+        },
+        "systems": {
+          "type": "native",
+          "title": "$t:aiSystems.title",
+          "component": "flxai-systems",
+          "fallback": {
+            "web": "admin.php?page=flx-ai-systems"
+          }
+        },
+        "mcp": {
+          "type": "native",
+          "title": "$t:aiMcp.title",
+          "component": "flxai-mcp",
+          "fallback": {
+            "web": "admin.php?page=flx-ai-mcp"
+          }
+        }
+      },
+      "routes": {
+        "admin.php?page=flx-ai": {
+          "screen": "chat"
+        },
+        "admin.php?page=flx-ai-billing": {
+          "screen": "billing"
+        },
+        "admin.php?page=flx-ai-tools": {
+          "screen": "tools"
+        },
+        "admin.php?page=flx-ai-systems": {
+          "screen": "systems"
+        },
+        "admin.php?page=flx-ai-mcp": {
+          "screen": "mcp"
+        }
+      },
+      "schema": "flx-app-manifest/1",
+      "version": "0.9.1"
     }
   }
 }

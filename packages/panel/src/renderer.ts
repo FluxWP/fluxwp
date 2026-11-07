@@ -8,7 +8,7 @@ import { useRoute } from './state/route';
 
 const SCREENS: ReadonlySet<ScreenType> = new Set(['list', 'detail', 'form', 'dashboard', 'settings', 'content', 'tabs', 'native', 'web']);
 
-export const NATIVE_SCREENS = ['dashboard', 'flxc-inbox', 'flxg-tasks', 'flxb-review'] as const;
+export const NATIVE_SCREENS = ['dashboard', 'flxc-inbox', 'flxg-tasks', 'flxb-review', 'flxai-chat', 'flxai-billing', 'flxai-tools', 'flxai-systems', 'flxai-mcp', 'flxr-roles', 'flxl-languages', 'flxsm-composer', 'flxsm-compose'] as const;
 
 export function desktopRenderer(): Renderer {
   const i18n = ensureI18n();

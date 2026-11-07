@@ -40,6 +40,7 @@ require_once FLXL_DIR . 'includes/araclar.php';
 require_once FLXL_DIR . 'includes/woocommerce.php';
 require_once FLXL_DIR . 'includes/sistem.php';
 require_once FLXL_DIR . 'includes/app.php';
+require_once FLXL_DIR . 'includes/native-settings.php';
 if ( is_admin() ) {
 	require_once FLXL_DIR . 'includes/admin.php';
 	require_once FLXL_DIR . 'includes/ayarlar.php';

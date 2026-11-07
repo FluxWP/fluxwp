@@ -13,10 +13,13 @@
     "@fluxwp/tokens": "workspace:*",
     "lucide-react": "^1.66.0",
     "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-i18next": "^17.1.10",
     "zustand": "^5.0.16"
   },
   "devDependencies": {
     "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "vite": "^8.3.5"
   }
 }

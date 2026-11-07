@@ -7,6 +7,7 @@ import type { ConfigLayer } from '@fluxwp/manifest';
 import { apiFor } from './api';
 import { CACHE_BUSTER, CACHE_MAX_AGE, createPersister, createQueryClient, type PersistStore } from './query';
 import type { Renderer } from './renderer';
+import { clearSocialSessions } from './modules/social-session';
 
 export interface AppInfo {
   /** This app's version (manifest `min_app`). */
@@ -36,6 +37,7 @@ export function queryClientFor(accountId: string): QueryClient {
 }
 
 export function dropAccountCache(accountId: string): void {
+  clearSocialSessions(accountId);
   clients.get(accountId)?.clear();
   clients.delete(accountId);
 }

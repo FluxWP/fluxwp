@@ -16,9 +16,11 @@ function flxai_page_mcp() {
 	$log   = array_slice( (array) get_option( 'flxai_mcp_log', array() ), 0, 20 );
 	$tools = flxai_mcp_tools();
 	$on    = flxai_mcp_enabled();
-	$form  = function ( $do, $inner, $button, $class = 'button' ) {
+	$state = flxai_admin_mcp_snapshot();
+	$form  = function ( $do, $inner, $button, $class = 'button' ) use ( $state ) {
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="flxai-inline-form">';
 		wp_nonce_field( 'flxai_mcp' );
+		echo '<input type="hidden" name="revision" value="' . esc_attr( $state['revision'] ) . '">';
 		echo '<input type="hidden" name="action" value="flxai_mcp"><input type="hidden" name="do" value="' . esc_attr( $do ) . '">' . $inner; // phpcs:ignore WordPress.Security.EscapeOutput -- callers escape
 		echo ' <button class="' . esc_attr( $class ) . '">' . esc_html( $button ) . '</button></form>';
 	};

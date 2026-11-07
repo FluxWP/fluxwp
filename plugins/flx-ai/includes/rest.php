@@ -47,7 +47,15 @@ function flxai_rest_routes() {
 	$r( '/log/(?P<id>\d+)', 'GET', 'flxai_rest_log_body', $mng );
 	$r( '/report', 'GET', 'flxai_rest_report', $mng );
 	$r( '/billing', 'GET', 'flxai_rest_billing', $mng );
+	$r( '/billing/export', 'GET', 'flxai_rest_billing_export', $mng );
 	$r( '/credits', 'POST', 'flxai_rest_credits', $mng );
+	$r( '/admin/tools', 'GET', 'flxai_admin_tools_get', $mng );
+	$r( '/admin/tools', 'POST', 'flxai_admin_tools_post', $mng );
+	$r( '/admin/systems', 'GET', 'flxai_admin_systems_get', $mng );
+	$r( '/admin/mcp', 'GET', 'flxai_admin_mcp_get', $mng );
+	$r( '/admin/mcp', 'POST', 'flxai_admin_mcp_post', $mng );
+	$r( '/admin/systems/(?P<source>[a-z0-9_-]+)', 'GET', 'flxai_admin_system_get', $mng );
+	$r( '/admin/systems/(?P<source>[a-z0-9_-]+)', 'POST', 'flxai_admin_system_post', $mng );
 }
 
 function flxai_rest_chat_or_404( WP_REST_Request $req ) {
@@ -341,11 +349,16 @@ function flxai_rest_report( WP_REST_Request $req ) {
 
 function flxai_rest_billing( WP_REST_Request $req ) {
 	return array(
+		'export_available' => true,
 		'month'   => flxai_billing( (string) $req->get_param( 'ym' ) ),
 		'months'  => flxai_months( 12 ),
 		'budget'  => flxai_budget_status(),
 		'credits' => get_option( 'flxai_or_credits', null ),
 	);
+}
+
+function flxai_rest_billing_export( WP_REST_Request $req ) {
+	return flxai_billing_csv( (string) $req->get_param( 'ym' ) );
 }
 
 function flxai_rest_credits() {

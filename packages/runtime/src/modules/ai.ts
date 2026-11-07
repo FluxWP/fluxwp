@@ -14,6 +14,8 @@ export interface AiPending {
   id: string;
   name: string;
   title: string;
+  source?: string;
+  args?: Record<string, unknown>;
 }
 
 export interface AiChat {

@@ -51,8 +51,11 @@ function flxai_mcp_enabled() {
 function flxai_mcp_keys() {
 	$keys = get_option( 'flxai_mcp_keys', null );
 	if ( null === $keys ) {
-		$keys = (array) get_option( 'flxseo_mcp_keys', array() );
-		update_option( 'flxai_mcp_keys', $keys, false );
+		// Atomic insert: a simultaneous first read must not overwrite a newly created key.
+		global $wpdb;
+		$wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO {$wpdb->options} (option_name,option_value,autoload) VALUES (%s,%s,%s)", 'flxai_mcp_keys', maybe_serialize( (array) get_option( 'flxseo_mcp_keys', array() ) ), 'no' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		wp_cache_delete( 'flxai_mcp_keys', 'options' ); wp_cache_delete( 'notoptions', 'options' );
+		$keys = get_option( 'flxai_mcp_keys', array() );
 	}
 	return (array) $keys;
 }
@@ -68,6 +71,29 @@ function flxai_mcp_find_key( $key ) {
 		}
 	}
 	return null;
+}
+
+function flxai_mcp_refresh_options() {
+	wp_cache_delete( 'alloptions', 'options' ); wp_cache_delete( 'flxai_settings', 'options' ); wp_cache_delete( 'flxai_mcp_keys', 'options' ); wp_cache_delete( 'notoptions', 'options' );
+	$GLOBALS['flxai_settings_cache'] = null;
+}
+
+/** Authenticate and touch a fresh key under the same lock as revocation. Never writes a stale key map. */
+function flxai_mcp_authenticated_key( $secret ) {
+	if ( ! is_string( $secret ) || strlen( $secret ) < 20 ) { return null; }
+	global $wpdb; $lock = flxai_admin_tools_lock_name();
+	if ( 1 !== (int) $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK(%s,0)', $lock ) ) ) { return new WP_Error( 'mcp_busy', __( 'MCP ayarları güncelleniyor. Yeniden deneyin.', 'flx-ai' ), array( 'status' => 503 ) ); }
+	try {
+		flxai_mcp_refresh_options();
+		if ( ! flxai_mcp_enabled() ) { return new WP_Error( 'mcp_disabled', __( 'MCP kapalı.', 'flx-ai' ), array( 'status' => 403 ) ); }
+		$key = flxai_mcp_find_key( $secret );
+		if ( ! $key ) { return null; }
+		if ( time() - (int) ( $key['last_used'] ?? 0 ) > 60 ) {
+			$keys = flxai_mcp_keys(); $keys[ $key['id'] ]['last_used'] = time();
+			update_option( 'flxai_mcp_keys', $keys, false );
+		}
+		return $key;
+	} finally { $wpdb->get_var( $wpdb->prepare( 'SELECT RELEASE_LOCK(%s)', $lock ) ); }
 }
 
 /**
@@ -201,16 +227,14 @@ function flxai_mcp_permission( WP_REST_Request $req ) {
 	if ( ! flxai_mcp_enabled() ) {
 		return new WP_Error( 'mcp_disabled', __( 'MCP kapalı. Flux AI & MCP › MCP ekranından açın.', 'flx-ai' ), array( 'status' => 403 ) );
 	}
-	$k = flxai_mcp_find_key( flxai_mcp_request_key( $req ) );
+	$secret = flxai_mcp_request_key( $req );
+	$k = '' !== $secret ? flxai_mcp_authenticated_key( $secret ) : null;
+	if ( is_wp_error( $k ) ) { return $k; }
+	// An earlier determine_current_user lookup must not authorize a key revoked since then.
+	if ( '' !== $secret && ! $k ) { return new WP_Error( 'mcp_auth', __( 'Geçersiz veya iptal edilmiş MCP anahtarı.', 'flx-ai' ), array( 'status' => 401 ) ); }
 	flxai_mcp_scope( true, $k && ! empty( $k['tools'] ) ? array_values( (array) $k['tools'] ) : null );
 	if ( $k ) {
 		wp_set_current_user( (int) $k['user'] );
-		$keys = flxai_mcp_keys();
-		// Son kullanım dakikada bir yazılır (yoklayan cihazlar her istekte veritabanına yazmasın).
-		if ( time() - (int) ( $keys[ $k['id'] ]['last_used'] ?? 0 ) > 60 ) {
-			$keys[ $k['id'] ]['last_used'] = time();
-			update_option( 'flxai_mcp_keys', $keys, false );
-		}
 	}
 	if ( ! is_user_logged_in() ) {
 		return new WP_Error( 'mcp_auth', __( 'Geçersiz veya eksik MCP anahtarı.', 'flx-ai' ), array( 'status' => 401 ) );
@@ -447,32 +471,15 @@ add_action(
 		}
 		check_admin_referer( 'flxai_mcp' );
 		$do   = sanitize_key( $_POST['do'] ?? '' );
-		$keys = flxai_mcp_keys();
-		if ( 'toggle' === $do ) {
-			flxai_update_settings( array( 'mcp_enabled' => empty( $_POST['mcp_enabled'] ) ? 0 : 1 ) );
-		} elseif ( 'create' === $do ) {
-			$key         = 'flxmcp_' . wp_generate_password( 40, false, false );
-			$id          = wp_generate_uuid4();
-			$name        = sanitize_text_field( wp_unslash( $_POST['name'] ?? '' ) );
-			$keys[ $id ] = array(
-				'name'      => '' !== $name ? $name : __( 'Yapay zekâ', 'flx-ai' ),
-				'hash'      => hash( 'sha256', $key ),
-				'user'      => get_current_user_id(),
-				'created'   => time(),
-				'last_used' => 0,
-				'hint'      => substr( $key, -4 ),
-			);
-			// Araç seçildiyse anahtar yalnız onlarla sınırlı (ör. TV paneli için yalnız order_summary).
-			$tools = array_values( array_intersect( array_map( 'sanitize_key', (array) wp_unslash( $_POST['tools'] ?? array() ) ), array_map( 'sanitize_key', array_keys( flxai_mcp_tools() ) ) ) );
-			if ( $tools ) {
-				$keys[ $id ]['tools'] = $tools;
-			}
-			update_option( 'flxai_mcp_keys', $keys, false );
-			set_transient( 'flxai_mcp_new_key_' . get_current_user_id(), $key, 300 );
-		} elseif ( 'revoke' === $do ) {
-			unset( $keys[ sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ) ] );
-			update_option( 'flxai_mcp_keys', $keys, false );
-		}
+		$body = array( 'action' => $do, 'revision' => (string) ( $_POST['revision'] ?? '' ) );
+		if ( 'toggle' === $do ) { $body['enabled'] = ! empty( $_POST['mcp_enabled'] ); }
+		elseif ( 'create' === $do ) {
+			$names = array_values( array_map( 'sanitize_key', (array) wp_unslash( $_POST['tools'] ?? array() ) ) );
+			$body += array( 'name' => (string) wp_unslash( $_POST['name'] ?? '' ), 'scope' => $names ? 'selected' : 'all', 'tools' => $names );
+		} elseif ( 'revoke' === $do ) { $body['id'] = sanitize_text_field( wp_unslash( $_POST['id'] ?? '' ) ); }
+		$result = flxai_admin_mcp_update( $body );
+		if ( is_wp_error( $result ) ) { wp_die( esc_html( $result->get_error_message() ), '', array( 'response' => (int) ( $result->get_error_data()['status'] ?? 400 ) ) ); }
+		if ( isset( $result['created']['secret'] ) ) { set_transient( 'flxai_mcp_new_key_' . get_current_user_id(), $result['created']['secret'], 300 ); }
 		wp_safe_redirect( flxai_mcp_admin_url() );
 		exit;
 	}

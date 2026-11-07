@@ -76,7 +76,7 @@ export default function AiScreen(_props: { params: Record<string, string> }) {
 
   const decide = async (ok: boolean) => {
     if (!chat) return;
-    const decisions = Object.fromEntries(chat.pending.map((p) => [p.id, ok ? 'approve' : 'deny']));
+    const decisions = Object.fromEntries(chat.pending.map((p) => [p.id, ok ? 'approve' : 'reject']));
     const r = await api<SendResult>(`flx-ai/v1/chats/${chat.id}/decide`, { method: 'POST', body: { decisions } });
     setChat(r.chat);
     if (r.state === 'continue' || r.chat.status === 'running') await step(chat.id);

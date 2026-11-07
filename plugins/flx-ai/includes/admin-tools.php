@@ -7,58 +7,6 @@
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * Ekrandaki satırlar: açık/kapalı tüm araçlar + çakışan (kullanılmayan) ikinci tanımlar.
- *
- * @return array[] name, title, description, source, label, readonly, approval, cap, mcp, chat, off, aliases,
- *                 dupe (bu satır çakışan ikinci tanım mı), rivals (aynı adı kaydeden diğer kaynaklar), prefixed
- */
-function flxai_tools_rows() {
-	$chat  = flxai_chat_registry( true );
-	$mcp   = flxai_mcp_registry();
-	$off   = flxai_tools_off();
-	$dupes = $chat['dupes'];
-	$rows  = array();
-	$names = array_unique( array_merge( array_keys( $mcp['tools'] ), array_keys( $chat['tools'] ) ) );
-	$row   = function ( $name, array $t, $dupe, $rivals ) use ( $chat, $mcp, $off ) {
-		$src = '' !== (string) ( $t['source'] ?? '' ) ? (string) $t['source'] : flxai_mcp_tool_source( $t );
-		$inf = flxai_source_info( $src );
-		return array(
-			'name'        => (string) $name,
-			'title'       => (string) ( $t['title'] ?? $name ),
-			'description' => (string) ( $t['description'] ?? '' ),
-			'source'      => $src,
-			'label'       => $inf['label'],
-			'readonly'    => ! empty( $t['readonly'] ),
-			'approval'    => flxai_tool_needs_approval( $t + array( 'readonly' => false ) ),
-			'cap'         => (string) ( $t['cap'] ?? 'edit_posts' ),
-			'mcp'         => ! $dupe && isset( $mcp['tools'][ $name ] ),
-			'chat'        => ! $dupe && isset( $chat['tools'][ $name ] ),
-			'off'         => ! $dupe && in_array( $name, $off, true ),
-			'aliases'     => array_values( array_map( 'strval', (array) ( $t['aliases'] ?? array() ) ) ),
-			'dupe'        => $dupe,
-			'rivals'      => $rivals,
-			'prefixed'    => flxai_tool_prefixed( $name, $src ),
-		);
-	};
-	foreach ( $names as $name ) {
-		$t      = $chat['tools'][ $name ] ?? $mcp['tools'][ $name ];
-		$rivals = array_keys( (array) ( $dupes[ $name ] ?? array() ) );
-		$rows[] = $row( $name, $t, false, $rivals );
-		foreach ( (array) ( $dupes[ $name ] ?? array() ) as $src => $d ) {
-			$d['source'] = $src;
-			$rows[]      = $row( $name, $d, true, array( (string) ( $t['source'] ?? '' ) ) );
-		}
-	}
-	usort(
-		$rows,
-		function ( $a, $b ) {
-			return array( $a['label'], $a['name'], $a['dupe'] ) <=> array( $b['label'], $b['name'], $b['dupe'] );
-		}
-	);
-	return $rows;
-}
-
 /* Kaydet / toplu işlem / çakışma seçimi: ekran çizilmeden önce, sonra aynı süzgeçlerle geri dönülür. */
 add_action(
 	'admin_init',
@@ -69,29 +17,26 @@ add_action(
 		check_admin_referer( 'flxai_tools', 'flxai_tools_nonce' );
 		$post = wp_unslash( $_POST ); // phpcs:ignore WordPress.Security.ValidationSanitization
 		$keep = array( 'saved' => 1 );
+		$body = array( 'revision' => (string) ( $post['revision'] ?? '' ) );
 		if ( ! empty( $post['pick'] ) && false !== strpos( (string) $post['pick'], '|' ) ) {
-			list( $name, $src ) = array_map( 'sanitize_text_field', explode( '|', (string) $post['pick'], 2 ) );
-			$picks              = (array) flxai_setting( 'tool_pick', array() );
-			$picks[ $name ]     = sanitize_key( $src );
-			flxai_update_settings( array( 'tool_pick' => $picks ) );
+			list( $name, $src ) = explode( '|', (string) $post['pick'], 2 );
+			$body['pick'] = array( 'name' => $name, 'source' => $src );
 			$keep['picked'] = rawurlencode( $name );
 		} else {
-			$all  = array_map( 'sanitize_text_field', (array) ( $post['all'] ?? array() ) );
-			$on   = array_map( 'sanitize_text_field', (array) ( $post['on'] ?? array() ) );
-			$sel  = array_map( 'sanitize_text_field', (array) ( $post['sel'] ?? array() ) );
-			$do   = sanitize_key( $post['do'] ?? 'save' );
-			$off  = array_values( array_diff( $all, $on ) );
-			if ( 'on' === $do ) {
-				$off = array_values( array_diff( $off, $sel ) );
-			} elseif ( 'off' === $do ) {
-				$off = array_values( array_unique( array_merge( $off, array_intersect( $sel, $all ) ) ) );
-			}
-			// Listede olmayan (eklentisi kapalı) araçların kapalı durumu korunur.
-			$prev = array_diff( flxai_tools_off(), $all );
-			flxai_update_settings( array( 'tools_off' => array_values( array_unique( array_merge( $prev, $off ) ) ) ) );
+			$all = array_map( 'strval', (array) ( $post['all'] ?? array() ) );
+			$on = array_map( 'strval', (array) ( $post['on'] ?? array() ) );
+			$body['changes'] = array();
+			foreach ( $all as $name ) { $body['changes'][ $name ] = in_array( $name, $on, true ); }
+			$do = sanitize_key( $post['do'] ?? 'save' );
 			if ( in_array( $do, array( 'on', 'off' ), true ) ) {
-				$keep['bulk'] = count( $sel );
+				$names = array_map( 'strval', (array) ( $post['sel'] ?? array() ) );
+				$body['bulk'] = array( 'enabled' => 'on' === $do, 'names' => $names );
+				$keep['bulk'] = count( $names );
 			}
+		}
+		$result = flxai_admin_tools_update( $body );
+		if ( is_wp_error( $result ) ) {
+			wp_die( esc_html( $result->get_error_message() ), '', array( 'response' => (int) ( $result->get_error_data()['status'] ?? 400 ) ) );
 		}
 		wp_safe_redirect( add_query_arg( $keep, admin_url( 'admin.php?page=flx-ai-tools' ) ) );
 		exit;
@@ -100,10 +45,7 @@ add_action(
 
 function flxai_page_tools() {
 	$rows  = flxai_tools_rows();
-	$stats = array();
-	foreach ( flxai_report( 30 )['by_tool'] as $s ) {
-		$stats[ $s['k'] ] = $s;
-	}
+	$stats = flxai_admin_tool_usage();
 	flxai_page_head( __( 'Araçlar', 'flx-ai' ), __( 'Eklentilerin yapay zekâya sunduğu araçlar: ortak sohbet ve MCP sunucusu. Kapatılan araç ikisinde de kullanılamaz; değişiklik yapan araçlar her seferinde onay ister.', 'flx-ai' ) );
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended
 	if ( isset( $_GET['saved'] ) ) {
@@ -143,6 +85,7 @@ function flxai_page_tools() {
 
 	echo '<form method="post" class="flxai-card flxai-toolsui" data-flxai-tools>';
 	wp_nonce_field( 'flxai_tools', 'flxai_tools_nonce' );
+	echo '<input type="hidden" name="revision" value="' . esc_attr( flxai_admin_tools_revision( $rows ) ) . '">';
 
 	// Eklenti çipleri: tıklayınca o eklentiye süzer.
 	echo '<div class="flxai-chips" role="group" aria-label="' . esc_attr__( 'Eklentiye göre', 'flx-ai' ) . '">';

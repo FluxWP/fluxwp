@@ -327,10 +327,10 @@ function flxai_page_systems() {
 	if ( isset( $_POST['flxai_systems_nonce'] ) && wp_verify_nonce( sanitize_key( $_POST['flxai_systems_nonce'] ), 'flxai_systems' ) && flxai_can_manage() ) {
 		$all = array_map( 'sanitize_key', (array) wp_unslash( $_POST['sys'] ?? array() ) ); // phpcs:ignore
 		$on  = array_map( 'sanitize_key', (array) wp_unslash( $_POST['sys_on'] ?? array() ) ); // phpcs:ignore
-		$off = array_values( array_diff( $all, $on ) );
-		// Listede olmayan (ör. kaldırılmış) kapalı kaynaklar korunur.
-		$keep = array_diff( (array) flxai_setting( 'sources_off', array() ), $all );
-		flxai_update_settings( array( 'sources_off' => array_values( array_unique( array_merge( $keep, $off ) ) ) ) );
+		$changes = array();
+		foreach ( $all as $source ) { $changes[ $source ] = in_array( $source, $on, true ); }
+		$result = flxai_admin_systems_toggle( array( 'revision' => (string) ( $_POST['revision'] ?? '' ), 'changes' => $changes ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		if ( is_wp_error( $result ) ) { wp_die( esc_html( $result->get_error_message() ), '', array( 'response' => (int) ( $result->get_error_data()['status'] ?? 400 ) ) ); }
 		$saved = true;
 	}
 	flxai_page_head( __( 'Bağlı sistemler', 'flx-ai' ), __( 'Flux AI\'yı kullanan eklentiler. Buradan kapatılan sistem yapay zekâ isteği gönderemez; kendi ayarları da olduğu gibi kalır.', 'flx-ai' ) );
@@ -340,6 +340,7 @@ function flxai_page_systems() {
 	$rows = flxai_systems();
 	echo '<form method="post">';
 	wp_nonce_field( 'flxai_systems', 'flxai_systems_nonce' );
+	echo '<input type="hidden" name="revision" value="' . esc_attr( flxai_admin_systems_revision( $rows ) ) . '">';
 	echo '<div class="flxai-card"><div class="flxai-tscroll"><table class="flxai-table flxai-systems"><thead><tr><th>' . esc_html__( 'Açık', 'flx-ai' ) . '</th><th>' . esc_html__( 'Sistem', 'flx-ai' ) . '</th><th>' . esc_html__( 'Durum', 'flx-ai' ) . '</th><th>' . esc_html__( 'Model', 'flx-ai' ) . '</th><th class="num">' . esc_html__( 'İstek (30 gün)', 'flx-ai' ) . '</th><th class="num">' . esc_html__( 'Token', 'flx-ai' ) . '</th><th class="num">' . esc_html__( 'Maliyet', 'flx-ai' ) . '</th><th class="num">' . esc_html__( 'Hata', 'flx-ai' ) . '</th><th>' . esc_html__( 'Son kullanım', 'flx-ai' ) . '</th><th></th></tr></thead><tbody>';
 	foreach ( $rows as $r ) {
 		if ( ! $r['installed'] ) {

@@ -25,34 +25,12 @@ add_action(
 		if ( '' === $slug ) {
 			return;
 		}
-		// Aç/kapa (Bağlı sistemler listesindeki anahtarla aynı ayar).
-		$off = array_diff( (array) flxai_setting( 'sources_off', array() ), array( $slug ) );
-		if ( empty( $post['ai_on'] ) ) {
-			$off[] = $slug;
+		$values = (array) ( $post['f'] ?? array() );
+		foreach ( (array) ( flx_ai_registry()['settings'][ $slug ] ?? array() ) as $key => $field ) {
+			if ( 'toggle' === $field['type'] ) { $values[ $key ] = ! empty( $values[ $key ] ); }
 		}
-		$models = (array) flxai_setting( 'source_models', array() );
-		$m      = sanitize_text_field( (string) ( $post['source_model'] ?? '' ) );
-		if ( '' === $m ) {
-			unset( $models[ $slug ] );
-		} else {
-			$models[ $slug ] = $m;
-		}
-		flxai_update_settings(
-			array(
-				'sources_off'   => array_values( array_unique( $off ) ),
-				'source_models' => $models,
-			)
-		);
-		if ( function_exists( 'flx_ai_set' ) ) {
-			$fields = flx_ai_registry()['settings'][ $slug ] ?? array();
-			$vals   = (array) ( $post['f'] ?? array() );
-			foreach ( $fields as $key => $f ) {
-				if ( 'toggle' === $f['type'] ) {
-					$vals[ $key ] = ! empty( $vals[ $key ] );
-				}
-			}
-			flx_ai_set( $slug, $vals );
-		}
+		$result = flxai_admin_system_update( $slug, array( 'revision' => (string) ( $post['revision'] ?? '' ), 'enabled' => ! empty( $post['ai_on'] ), 'model' => (string) ( $post['source_model'] ?? '' ), 'values' => $values ) );
+		if ( is_wp_error( $result ) ) { wp_die( esc_html( $result->get_error_message() ), '', array( 'response' => (int) ( $result->get_error_data()['status'] ?? 400 ) ) ); }
 		wp_safe_redirect( admin_url( 'admin.php?page=flx-ai-systems&system=' . rawurlencode( $slug ) . '&saved=1' ) );
 		exit;
 	}
@@ -73,6 +51,8 @@ function flxai_page_system_settings( $slug ) {
 		'plugins'  => array(),
 		'settings' => array(),
 	);
+	$contract = flxai_admin_system_detail( $slug );
+	if ( is_wp_error( $contract ) ) { wp_die( esc_html( $contract->get_error_message() ), '', array( 'response' => 404 ) ); }
 	$plugin = $reg['plugins'][ $slug ] ?? array();
 	$fields = $reg['settings'][ $slug ] ?? array();
 	$info   = flxai_source_info( $slug );
@@ -89,6 +69,7 @@ function flxai_page_system_settings( $slug ) {
 
 	echo '<form method="post" class="flxai-card flxai-sysform">';
 	wp_nonce_field( 'flxai_system', 'flxai_system_nonce' );
+	echo '<input type="hidden" name="revision" value="' . esc_attr( $contract['revision'] ) . '">';
 	echo '<input type="hidden" name="system" value="' . esc_attr( $slug ) . '">';
 	echo '<table class="form-table" role="presentation"><tbody>';
 
@@ -100,6 +81,10 @@ function flxai_page_system_settings( $slug ) {
 	echo '<p class="description">' . esc_html__( 'Boşsa varsayılan model kullanılır.', 'flx-ai' ) . '</p></td></tr>';
 
 	foreach ( $fields as $key => $f ) {
+		if ( ! in_array( $f['type'], array( 'toggle', 'text', 'textarea', 'number', 'select', 'model' ), true ) ) {
+			echo '<tr><th>' . esc_html( $f['label'] ) . '</th><td>' . esc_html__( 'Bu alan türü desteklenmiyor; değeri değiştirilmedi.', 'flx-ai' ) . '</td></tr>';
+			continue;
+		}
 		$name = 'f[' . $key . ']';
 		$val  = function_exists( 'flx_ai_get' ) ? flx_ai_get( $slug, $key ) : $f['default'];
 		$id   = 'flxai-f-' . $key;

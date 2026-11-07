@@ -3,6 +3,7 @@ import { Controller } from 'react-hook-form';
 import type { FormScreen as FormModel, Manifest } from '@fluxwp/manifest';
 import { useFormController, useRenderer } from '@fluxwp/runtime';
 import { useMinWidth, TABLE_MIN } from './width';
+import { Select } from '@fluxwp/ui';
 
 export function FormScreen({ manifest, screen, params }: { manifest: Manifest; screen: FormModel; params: Record<string, string> }) {
   const c = useFormController(manifest, screen, params);
@@ -64,10 +65,10 @@ export function FormScreen({ manifest, screen, params }: { manifest: Manifest; s
                 {f.type === 'textarea' || f.type === 'markdown' ? (
                   <textarea {...register(f.name, c.rules(f))} placeholder={f.placeholder} readOnly={f.readonly} rows={4} />
                 ) : f.type === 'select' && Array.isArray(f.options) ? (
-                  <select {...register(f.name, c.rules(f))} disabled={f.readonly}>
+                  <Controller control={control} name={f.name} rules={c.rules(f)} render={({field}) => <Select {...field} value={String(field.value ?? '')} disabled={f.readonly}>
                     <option value="" />
-                    {f.options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                  </select>
+                    {(Array.isArray(f.options) ? f.options : []).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </Select>} />
                 ) : f.type === 'readonly' ? (
                   <input readOnly value={String(c.form.getValues(f.name) ?? '')} />
                 ) : (

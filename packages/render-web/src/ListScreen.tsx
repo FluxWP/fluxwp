@@ -9,6 +9,7 @@ import type { Route } from '@fluxwp/runtime';
 import { Icon } from '@fluxwp/ui';
 import { ManifestScreen } from './ManifestScreen';
 import { TABLE_MIN, useMinWidth } from './width';
+import { Select } from '@fluxwp/ui';
 
 export function ListScreen({ manifest, screen, params }: { manifest: Manifest; screen: ListScreenModel; params: Record<string, string> }) {
   const c = useListController(manifest, screen, params);
@@ -73,10 +74,10 @@ export function ListScreen({ manifest, screen, params }: { manifest: Manifest; s
               f.type === 'toggle' ? (
                 <label key={f.param} className="fx-check"><input type="checkbox" checked={!!f.value} onChange={(e) => c.setFilter(f.param, e.target.checked || null)} /> {f.label}</label>
               ) : (
-                <select key={f.param} aria-label={f.label} value={f.value == null ? '' : String(f.value)} onChange={(e) => c.setFilter(f.param, e.target.value || null)}>
+                <Select key={f.param} aria-label={f.label} value={f.value == null ? '' : String(f.value)} onChange={(e) => c.setFilter(f.param, e.target.value || null)}>
                   <option value="">{f.label}</option>
                   {f.options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                </select>
+                </Select>
               ),
             )}
           </div>

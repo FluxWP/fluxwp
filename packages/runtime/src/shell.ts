@@ -3,6 +3,7 @@
 import { adminPath, type Me } from '@fluxwp/core';
 import { resolveTarget, type ResolveEnv, type Route } from './resolve';
 import { normalizeShell, parseTarget, type AppConfig } from '@fluxwp/manifest';
+import { shellGroupLabel } from './group-label';
 
 export interface NavEntry {
   id: string;
@@ -103,7 +104,7 @@ const visible = (e: NavEntry) => e.route.kind !== 'none';
 
 function groupsOf(groups: { id: string; label?: string; collapsed?: boolean; items: string[] }[] | undefined, env: ShellEnv, prefix: string): ShellGroup[] {
   return (groups ?? [])
-    .map((g) => ({ id: g.id, label: g.label ?? '', collapsed: !!g.collapsed, items: g.items.map((t, i) => entry(`${prefix}${g.id}:${i}`, t, env)).filter(visible) }))
+    .map((g) => ({ id: g.id, label: shellGroupLabel(g.id, g.label), collapsed: !!g.collapsed, items: g.items.map((t, i) => entry(`${prefix}${g.id}:${i}`, t, env)).filter(visible) }))
     .filter((g) => g.items.length);
 }
 

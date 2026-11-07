@@ -21,6 +21,7 @@ import { buildMenu } from '../lib/menuGroups';
 import { activeOf, fromEntry, fromNav, labelOf, type SideGroup, type SideLink } from '../shell/links';
 import { PrefsBridge, SyncNotifier } from '../shell/bridges';
 import { homeRoute, type Route } from '../state/route';
+import { AiDock } from '../ai/AiWorkspace';
 
 export function Shell() {
   const account = useAccount();
@@ -115,6 +116,7 @@ export function Shell() {
           </ModuleHostProvider>
         </div>
       </main>
+      <AiDock />
       {palette && <CommandPalette links={[...menu.pins, ...menu.groups.flatMap((g) => g.items)]} commands={commands} onClose={() => setPalette(false)} onOpen={open} />}
     </div>
   );

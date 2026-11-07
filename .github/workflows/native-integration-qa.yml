@@ -1,0 +1,31 @@
+name: Native integration - real WordPress
+on:
+  pull_request:
+    paths:
+      - 'plugins/flx-ai/**'
+      - 'tools/native-audit/staging/**'
+      - '.github/workflows/native-integration-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  billing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - name: Start isolated WordPress with generated local credentials
+        run: python3 tools/native-audit/staging/site.py up --state-dir "$RUNNER_TEMP/fluxwp-native-qa"
+      - name: Verify billing against the real REST server and database
+        run: docker compose -p fluxwp-native-qa --env-file "$RUNNER_TEMP/fluxwp-native-qa/qa.env" -f tools/native-audit/staging/compose.yaml run --rm cli eval-file /opt/fluxwp-public/tools/native-audit/staging/billing-test.php
+      - name: Verify native tool administration and concurrency
+        run: docker compose -p fluxwp-native-qa --env-file "$RUNNER_TEMP/fluxwp-native-qa/qa.env" -f tools/native-audit/staging/compose.yaml run --rm cli eval-file /opt/fluxwp-public/tools/native-audit/staging/ai-tools-test.php
+      - name: Verify connected system SDK forms and permissions
+        run: docker compose -p fluxwp-native-qa --env-file "$RUNNER_TEMP/fluxwp-native-qa/qa.env" -f tools/native-audit/staging/compose.yaml run --rm cli eval-file /opt/fluxwp-public/tools/native-audit/staging/ai-systems-test.php
+      - name: Verify MCP key scopes, revocation and secret isolation
+        run: docker compose -p fluxwp-native-qa --env-file "$RUNNER_TEMP/fluxwp-native-qa/qa.env" -f tools/native-audit/staging/compose.yaml run --rm cli eval-file /opt/fluxwp-public/tools/native-audit/staging/ai-mcp-test.php
+      - name: Verify legacy MCP compatibility without granting access
+        run: docker compose -p fluxwp-native-qa --env-file "$RUNNER_TEMP/fluxwp-native-qa/qa.env" -f tools/native-audit/staging/compose.yaml run --rm cli --require=/opt/fluxwp-public/tools/native-audit/staging/ai-mcp-legacy-fixture.php eval-file /opt/fluxwp-public/tools/native-audit/staging/ai-mcp-legacy-test.php
+      - name: Stop isolated QA containers
+        if: always()
+        run: python3 tools/native-audit/staging/site.py stop --state-dir "$RUNNER_TEMP/fluxwp-native-qa"
